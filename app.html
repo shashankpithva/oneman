@@ -161,6 +161,7 @@
       <div class="chip" onclick="obFill(this)">A skincare brand for sensitive skin</div>
       <div class="chip" onclick="obFill(this)">An AI dog trainer app</div>
     </div>
+    <button class="btn ghost sm" id="obResearchBtn" style="margin-top:14px" onclick="obResearch()">🔍 Not sure? Research me &amp; suggest a business</button>
     <div class="ai-banner" id="aiBanner">To produce real deliverables, <a onclick="openAI()">connect your own AI</a>. Without it you'll get a plan, but tasks won't generate real output.</div>
   </div>
 </div>
@@ -254,6 +255,7 @@
           <button onclick="openEmail()"><span class="mi">✉</span>Email setup</button>
           <button onclick="openX()"><span class="mi">𝕏</span>X setup</button>
           <button onclick="openNews()"><span class="mi">📰</span>News API</button>
+          <button onclick="generateReport()"><span class="mi">📊</span>Generate report</button>
           <div class="menu-div"></div>
           <button onclick="go('home');closeApp()"><span class="mi">↗</span>View site</button>
           <button onclick="logout()"><span class="mi">⎋</span>Sign out</button>
@@ -313,7 +315,7 @@
   <div class="app-main" style="grid-template-columns:1fr">
     <div class="app-left">
       <div class="board"><div class="bhead"><h3>Task board</h3><button class="btn sm" id="runBtn" onclick="toggleRun()">Run agents</button></div><div id="taskList"></div></div>
-      <div class="board" style="margin-top:26px"><h3 style="margin-bottom:12px">Deliverables</h3><div id="artList"></div></div>
+      <div class="board" style="margin-top:26px"><div class="bhead"><h3>Deliverables</h3><button class="btn sm" onclick="generateReport()">📊 Generate report</button></div><div id="artList"></div></div>
     </div>
   </div>
 </div>
