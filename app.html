@@ -171,11 +171,23 @@
       <div class="company-pill"><span class="live-dot"></span>Outbox</div>
     </div>
     <div class="right">
-      <button class="btn ghost sm" onclick="enterDash()">← Dashboard</button>
-      <button class="btn ghost sm" onclick="openEmail()">Email setup</button>
-      <button class="btn ghost sm" onclick="document.getElementById('recipFile2').click()">Upload list</button>
-      <button class="btn ghost sm" onclick="showRecipients()">View list</button>
-      <button class="btn ghost sm" onclick="openX()">X setup</button>
+      <nav class="tabs">
+        <button class="tab" onclick="enterDash()">Dashboard</button>
+        <button class="tab active" onclick="openOutboxPage()">Outbox</button>
+        <button class="tab" onclick="openLivePage()">Radar</button>
+      </nav>
+      <div class="menu">
+        <button class="btn ghost sm" onclick="toggleMenu(event,'obMenu')">Settings ▾</button>
+        <div class="menu-pop hidden" id="obMenu">
+          <div class="menu-label">Recipients</div>
+          <button onclick="document.getElementById('recipFile2').click()"><span class="mi">⬆</span>Upload list</button>
+          <button onclick="showRecipients()"><span class="mi">☰</span>View list</button>
+          <div class="menu-div"></div>
+          <div class="menu-label">Connect</div>
+          <button onclick="openEmail()"><span class="mi">✉</span>Email setup</button>
+          <button onclick="openX()"><span class="mi">𝕏</span>X setup</button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="app-main" style="grid-template-columns:1fr">
@@ -192,9 +204,18 @@
       <div class="company-pill"><span class="live-dot"></span>Competitor radar</div>
     </div>
     <div class="right">
-      <button class="btn ghost sm" onclick="openNews()">News API</button>
-      <button class="btn ghost sm" onclick="crRefresh(true)">↻ Refresh</button>
-      <button class="btn ghost sm" onclick="enterDash()">← Dashboard</button>
+      <nav class="tabs">
+        <button class="tab" onclick="enterDash()">Dashboard</button>
+        <button class="tab" onclick="openOutboxPage()">Outbox</button>
+        <button class="tab active" onclick="openLivePage()">Radar</button>
+      </nav>
+      <button class="btn sm" onclick="crRefresh(true)">↻ Refresh</button>
+      <div class="menu">
+        <button class="btn ghost sm" onclick="toggleMenu(event,'lvMenu')">Settings ▾</button>
+        <div class="menu-pop hidden" id="lvMenu">
+          <button onclick="openNews()"><span class="mi">📰</span>News API</button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="app-main" style="grid-template-columns:1fr">
@@ -216,11 +237,25 @@
       <div class="company-pill"><span class="live-dot"></span><span id="compName">Your company</span></div>
     </div>
     <div class="right">
+      <nav class="tabs">
+        <button class="tab active" onclick="enterDash()">Dashboard</button>
+        <button class="tab" onclick="openOutboxPage()">Outbox</button>
+        <button class="tab" onclick="openLivePage()">Radar</button>
+      </nav>
       <button class="btn ghost sm ai-pill" onclick="openAI()">Connect AI</button>
-      <button class="btn ghost sm" onclick="openLivePage()">Live</button>
-      <button class="btn ghost sm" onclick="openOutboxPage()">Outbox</button>
-      <button class="btn ghost sm" onclick="go('home');closeApp()">View site</button>
-      <button class="btn ghost sm" onclick="logout()">Sign out</button>
+      <div class="menu">
+        <button class="btn ghost sm" onclick="toggleMenu(event,'dashMenu')">Settings ▾</button>
+        <div class="menu-pop hidden" id="dashMenu">
+          <div class="menu-label">Connect</div>
+          <button onclick="openAI()"><span class="mi">✦</span>AI provider</button>
+          <button onclick="openEmail()"><span class="mi">✉</span>Email setup</button>
+          <button onclick="openX()"><span class="mi">𝕏</span>X setup</button>
+          <button onclick="openNews()"><span class="mi">📰</span>News API</button>
+          <div class="menu-div"></div>
+          <button onclick="go('home');closeApp()"><span class="mi">↗</span>View site</button>
+          <button onclick="logout()"><span class="mi">⎋</span>Sign out</button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="app-main">
@@ -319,7 +354,7 @@
     <div class="field"><label>From name</label><input id="emFrom" placeholder="Your name or company"/></div>
     <button class="btn" onclick="saveEmailForm()">Save</button>
     <div class="alt" id="emStatus"></div>
-    <div class="alt" style="margin-top:8px;font-size:11px">Your EmailJS template must include these variables: to_email, to_name, subject, message, from_name.</div>
+    <div class="alt" style="margin-top:8px;font-size:11px;line-height:1.55"><b>Important &mdash; so Polsia&rsquo;s email is what actually sends (not the template&rsquo;s own text):</b><br>In your EmailJS template, delete any sample/hard-coded copy and set the fields to these EXACT variables:<br>&bull; <b>Subject</b> = <code>&#123;&#123;subject&#125;&#125;</code><br>&bull; <b>Content / body</b> = <code>&#123;&#123;message&#125;&#125;</code> &mdash; switch the content box to the code/HTML view and paste only this, so it is not escaped<br>&bull; <b>To Email</b> = <code>&#123;&#123;to_email&#125;&#125;</code><br>&bull; <b>From Name</b> = <code>&#123;&#123;from_name&#125;&#125;</code> &nbsp; <b>Reply To</b> = <code>&#123;&#123;reply_to&#125;&#125;</code><br>If the body contains any fixed text instead of <code>&#123;&#123;message&#125;&#125;</code>, recipients get the template, not Polsia&rsquo;s email.</div>
   </div>
 </div>
 <div class="modal-bg hidden" id="xModal">
