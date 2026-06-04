@@ -360,15 +360,17 @@
 <div class="modal-bg hidden" id="xModal">
   <div class="modal">
     <button class="x" onclick="closeX()">×</button>
-    <h3>Posting to your socials</h3>
-    <p>No setup, no webhook, no fees. When you approve a social post in the Outbox, Polsia opens the network's composer with your text already filled in — you just hit <b>Post</b> to confirm.</p>
-    <div class="alt" style="margin-top:14px;font-size:13px;line-height:1.9">
-      <b>𝕏 / X</b> — opens the post box pre-filled. One click to publish.<br>
-      <b>LinkedIn</b> — opens the share composer pre-filled. One click to publish.<br>
-      <b>Instagram</b> — copies your caption and opens Instagram (their rules don't allow pre-filling), so you just paste it in.
+    <h3>Auto-post to X</h3>
+    <p>Connect your X account once, then approved posts publish to X automatically — no compose window. Uses your own free X app + a free Cloudflare Worker. <b>Step-by-step setup is in the repo at <code>worker/SETUP-X.md</code></b> (~10 min, no cost).</p>
+    <div class="field"><label>X Client ID</label><input id="xClient" placeholder="OAuth 2.0 Client ID from your X app"/></div>
+    <div class="field"><label>Worker URL</label><input id="xWorker" placeholder="https://your-worker.your-name.workers.dev"/></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+      <button class="btn" onclick="saveXForm()">Save</button>
+      <button class="btn ghost" id="xConnectBtn" onclick="xConnect()">Connect X account</button>
+      <button class="btn ghost" id="xDisconnectBtn" style="display:none" onclick="xDisconnect()">Disconnect</button>
     </div>
-    <div class="alt" style="margin-top:12px;font-size:11px;line-height:1.7">Why not fully hands-off? Auto-posting safely needs your private login tokens on a server, and this site is public — any key placed here could be stolen and used to post as you. The 1-click composer keeps your accounts safe and stays completely free.</div>
-    <button class="btn" onclick="closeX()">Got it</button>
+    <div class="alt" id="xStatus" style="margin-top:10px"></div>
+    <div class="alt" style="margin-top:10px;font-size:11px;line-height:1.7">Set your X app's redirect URL to this page's address (see SETUP-X.md). Until you connect an account, X posts fall back to the 1-click composer. LinkedIn and Instagram always use the 1-click composer.</div>
   </div>
 </div>
 <div class="modal-bg hidden" id="newsModal">
