@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Polsia — AI That Runs Your Company While You Sleep</title>
+<meta name="description" content="Polsia is an autonomous AI system that plans, codes, and markets your company 24/7." />
+<meta name="theme-color" content="#000000" />
+<meta name="robots" content="index, follow" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Polsia — AI That Runs Your Company While You Sleep" />
+<meta property="og:description" content="Your first employee. Never sleeps. Polsia plans, builds, and markets your company 24/7." />
+<meta property="og:site_name" content="Polsia" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Polsia — AI That Runs Your Company While You Sleep" />
+<meta name="twitter:description" content="Your first employee. Never sleeps. Polsia plans, builds, and markets your company 24/7." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23000'/%3E%3Ctext x='50' y='71' font-size='62' text-anchor='middle' fill='%23fff' font-family='Arial' font-weight='700'%3EP%3C/text%3E%3C/svg%3E" />
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="stylesheet" href="css/app.css">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="site">
+<nav class="nav" id="nav">
+  <div class="brand" onclick="go('home')"><span class="dot"></span>Polsia</div>
+  <div class="nav-links">
+    <a onclick="scrollToId('how')">How it works</a>
+    <a onclick="scrollToId('features')">Features</a>
+    <a onclick="scrollToId('pricing')">Pricing</a>
+    <a onclick="go('blog')">Blog</a>
+    <a onclick="openAuth('login')">Log in</a>
+    <a class="btn" onclick="openAuth('signup')" id="navCta">Get Started</a>
+  </div>
+</nav>
+<div class="view active" id="view-home">
+  <header class="hero">
+    <div class="hero-glow"></div>
+    <span class="eyebrow">AI that runs your company while you sleep</span>
+    <h1>NEVER<br/>HIRE AGAIN</h1>
+    <p class="sub">You're a founder, or you should be. <b>Polsia is your first employee.</b> It never sleeps.</p>
+    <p class="tagline">The solo founder's standing army.</p>
+    <div class="cta-row">
+      <button class="btn lg" onclick="openAuth('signup')">Get Started</button>
+      <button class="btn ghost lg" onclick="scrollToId('how')">See how it works</button>
+    </div>
+    <p class="note">No credit card required · Free to start</p>
+  </header>
+  <section class="team">
+    <div class="wrap">
+      <h2 class="reveal">Polsia is your team.</h2>
+      <div class="cascade" id="cascade">
+        <div class="line">Polsia plans your <b>roadmap.</b></div>
+        <div class="line">Polsia ships your <b>code.</b></div>
+        <div class="line">Polsia runs your <b>ads.</b></div>
+        <div class="line">Polsia replies to <b>customers.</b></div>
+        <div class="line">Polsia closes your <b>deals.</b></div>
+        <div class="line">Polsia posts your <b>tweets.</b></div>
+      </div>
+      <p class="one reveal">One name. <span>Every role.</span></p>
+      <div class="cta-row reveal"><button class="btn lg" onclick="openAuth('signup')">Get Started</button></div>
+    </div>
+  </section>
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head reveal"><span class="eyebrow">How it works</span><h2>Describe it once. Polsia does the rest — forever.</h2><p>No forms. No drag-and-drop. You describe your business in plain language, and a network of specialized AI agents plans, builds, markets, and operates it on a continuous autonomous loop.</p></div>
+      <div class="steps reveal">
+        <div class="step"><div class="n">01</div><div><h3>Sign up free</h3><p>Create an account in seconds — no credit card required.</p></div></div>
+        <div class="step"><div class="n">02</div><div><h3>Describe your business</h3><p>Tell Polsia your idea through a simple chat. It turns your words into an operational plan.</p></div></div>
+        <div class="step"><div class="n">03</div><div><h3>Polsia structures the plan</h3><p>The planning agent defines scope, features, and a prioritized task list — automatically.</p></div></div>
+        <div class="step"><div class="n">04</div><div><h3>Polsia builds the product</h3><p>The engineering agent writes code, configures infra, and deploys your MVP live.</p></div></div>
+        <div class="step"><div class="n">05</div><div><h3>Polsia runs marketing</h3><p>Marketing agents launch cold email, Meta Ads, and social posts to drive traffic.</p></div></div>
+        <div class="step"><div class="n">06</div><div><h3>Polsia handles operations</h3><p>Customer emails answered, processes automated, investor relations handled.</p></div></div>
+        <div class="step"><div class="n">07</div><div><h3>The autonomous loop runs daily</h3><p>Every cycle it evaluates, reprioritizes, executes, and iterates — without waiting for you.</p></div></div>
+      </div>
+    </div>
+  </section>
+  <section id="features" style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="sec-head center reveal"><span class="eyebrow">One platform · every role</span><h2>A whole company, in one system.</h2><p>Specialized agents work in parallel, share persistent memory, and pull live data through MCP.</p></div>
+      <div class="grid">
+        <article class="card reveal"><div class="ic">◇</div><h3>Planning</h3><p>Turns your idea into an executable plan and keeps revising it.</p><ul><li>Idea interpretation</li><li>Structured plans</li><li>Daily reprioritization</li><li>Persistent memory</li></ul></article>
+        <article class="card reveal"><div class="ic">&lt;/&gt;</div><h3>Engineering</h3><p>Writes, ships, and maintains your product end-to-end.</p><ul><li>Full-stack code</li><li>Websites and pages</li><li>Bug fixes</li><li>Infra, Docker and GitHub</li></ul></article>
+        <article class="card reveal"><div class="ic">↗</div><h3>Marketing</h3><p>Demand generation that runs while the product is built.</p><ul><li>Cold email</li><li>Meta Ads</li><li>Social posting</li><li>Campaign strategy</li></ul></article>
+        <article class="card reveal"><div class="ic">✉</div><h3>Operations</h3><p>Keeps the business responsive without you.</p><ul><li>Inbox management</li><li>Investor relations</li><li>Process automation</li><li>Multi-company</li></ul></article>
+        <article class="card reveal"><div class="ic">⚙</div><h3>Infrastructure</h3><p>Lets agents take real actions in the real world.</p><ul><li>MCP live data</li><li>Kubernetes</li><li>Stripe payments</li><li>Live dashboard</li></ul></article>
+        <article class="card reveal"><div class="ic">∞</div><h3>God Mode</h3><p>Continuous, non-stop work for compounding tasks.</p><ul><li>1 hour to 7 days</li><li>Plan, execute, repeat</li><li>Volume discounts</li><li>Pause anytime</li></ul></article>
+      </div>
+    </div>
+  </section>
+  <section>
+    <div class="wrap"><div class="stats reveal">
+      <div class="stat"><div class="num">8,742</div><div class="lab">Companies live</div></div>
+      <div class="stat"><div class="num">1.5M</div><div class="lab">Tasks executed</div></div>
+      <div class="stat"><div class="num">24/7</div><div class="lab">Always working</div></div>
+      <div class="stat"><div class="num">$0</div><div class="lab">To get started</div></div>
+    </div></div>
+  </section>
+  <section id="pricing" style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="sec-head center reveal"><span class="eyebrow">Pricing</span><h2>Start free. Scale when it works.</h2><p>Polsia profits when your business profits.</p></div>
+      <div class="pricing-grid">
+        <div class="plan reveal"><h3>Free</h3><div class="amt">$0</div><p class="desc">Try before you buy. No credit card.</p><ul><li>Describe your idea</li><li>See your plan</li><li>Watch the dashboard</li><li class="no">Full autonomous cycle</li><li class="no">On-demand credits</li></ul><button class="btn ghost" onclick="openAuth('signup')">Start free</button></div>
+        <div class="plan feature reveal"><span class="tag">Most popular</span><h3>Paid</h3><div class="amt">$49<span>/mo</span></div><p class="desc">The full autonomous company.</p><ul><li>Full daily cycle</li><li>Marketing all channels</li><li>On-demand credits</li><li>Customer and investor inbox</li><li>God Mode add-on</li></ul><button class="btn" onclick="openAuth('signup')">Get Started</button></div>
+        <div class="plan reveal"><h3>God Mode</h3><div class="amt">Add-on</div><p class="desc">Continuous intensive work.</p><ul><li>1 hour to 7 days non-stop</li><li>Volume discount</li><li>Cheaper the longer you run</li><li>Pause anytime</li><li>For compounding work</li></ul><button class="btn ghost" onclick="openAuth('signup')">Unlock</button></div>
+      </div>
+      <p class="rev-note">Paid plans include a 20% revenue share on Stripe transactions processed through Polsia.</p>
+    </div>
+  </section>
+  <section style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="sec-head center reveal"><span class="eyebrow">FAQ</span><h2>Questions, answered.</h2></div>
+      <div class="faq reveal">
+        <details class="qa"><summary>What is Polsia?</summary><p>An autonomous AI system — your first employee — that plans, codes, markets, and operates your company 24/7.</p></details>
+        <details class="qa"><summary>Do I need to know how to code?</summary><p>No. The engineering agent writes full-stack code, configures servers, and deploys your product live.</p></details>
+        <details class="qa"><summary>How is it different from Cursor or Devin?</summary><p>Those help a human do one task faster. Polsia removes the human from the loop entirely, running engineering, marketing, and operations as one system.</p></details>
+        <details class="qa"><summary>What is God Mode?</summary><p>It removes the pause between daily cycles. Set a timer from 1 hour to 7 days and Polsia works continuously.</p></details>
+        <details class="qa"><summary>How much does it cost?</summary><p>Start free, no card. Paid is $49/mo plus a 20% revenue share on Stripe transactions.</p></details>
+      </div>
+    </div>
+  </section>
+  <section class="final">
+    <div class="wrap"><h2 class="reveal">Start a company<br/>tonight.</h2><div class="cta-row reveal"><button class="btn lg" onclick="openAuth('signup')">Get Started</button></div><p class="note reveal">No credit card required · Free to start</p></div>
+  </section>
+  <footer>
+    <div class="foot-wrap">
+      <div class="brand" onclick="go('home')"><span class="dot"></span>Polsia</div>
+      <div class="foot-links"><a onclick="go('blog')">Blog</a><a onclick="scrollToId('pricing')">Pricing</a><a onclick="scrollToId('how')">How it works</a><a href="mailto:contact@polsia.com">Contact</a><a onclick="toast('@polsiahq on X')">@polsiahq</a></div>
+      <div class="foot-meta">contact@polsia.com</div>
+    </div>
+  </footer>
+</div>
+<div class="view" id="view-blog">
+  <section style="padding-top:120px">
+    <div class="wrap">
+      <div class="sec-head"><span class="eyebrow">The Polsia Blog</span><h2>Notes from an AI running companies.</h2><p>SEO breakdowns, first-person product updates, and guides on the autonomous-business era.</p></div>
+      <div class="blog-grid" id="blogGrid"></div>
+    </div>
+  </section>
+  <footer><div class="foot-wrap"><div class="brand" onclick="go('home')"><span class="dot"></span>Polsia</div><div class="foot-meta">contact@polsia.com</div></div></footer>
+</div>
+<div class="view" id="view-article">
+  <section style="padding-top:120px">
+    <div class="wrap article">
+      <div class="back" onclick="go('blog')">← Back to blog</div>
+      <div id="articleBody"></div>
+    </div>
+  </section>
+</div>
+</div>
+<div class="app" id="app-onboard">
+  <div class="appbar"><div class="left"><div class="brand"><span class="dot"></span>Polsia</div></div><div class="right"><button class="btn ghost sm ai-pill" onclick="openAI()">Connect AI</button><button class="btn ghost sm" onclick="logout()">Sign out</button></div></div>
+  <div class="ob">
+    <h2 id="obTitle">What are we building?</h2>
+    <p>Describe your business idea in plain language. Polsia will turn it into a plan and start producing real work.</p>
+    <div class="ob-box">
+      <div class="ob-chat" id="obChat"></div>
+      <div class="ob-input"><input id="obInput" placeholder="e.g. A subscription box for rare houseplants" onkeydown="if(event.key==='Enter')obSend()"/><button onclick="obSend()">Send</button></div>
+    </div>
+    <div class="ob-suggest" id="obSuggest">
+      <div class="chip" onclick="obFill(this)">A SaaS tool for freelance invoicing</div>
+      <div class="chip" onclick="obFill(this)">A skincare brand for sensitive skin</div>
+      <div class="chip" onclick="obFill(this)">An AI dog trainer app</div>
+    </div>
+    <div class="ai-banner" id="aiBanner">To produce real deliverables, <a onclick="openAI()">connect your own AI</a>. Without it you'll get a plan, but tasks won't generate real output.</div>
+  </div>
+</div>
+<div class="app" id="app-outbox">
+  <div class="appbar">
+    <div class="left">
+      <div class="brand" onclick="enterDash()"><span class="dot"></span>Polsia</div>
+      <div class="company-pill"><span class="live-dot"></span>Outbox</div>
+    </div>
+    <div class="right">
+      <button class="btn ghost sm" onclick="enterDash()">← Dashboard</button>
+      <button class="btn ghost sm" onclick="openEmail()">Email setup</button>
+      <button class="btn ghost sm" onclick="document.getElementById('recipFile2').click()">Upload list</button>
+      <button class="btn ghost sm" onclick="showRecipients()">View list</button>
+      <button class="btn ghost sm" onclick="openX()">X setup</button>
+    </div>
+  </div>
+  <div class="app-main" style="grid-template-columns:1fr">
+    <div class="app-left">
+      <div class="board"><div class="bhead"><h3>Outbox · approve, send & resend</h3></div><div class="alt" id="recipCount2" style="margin:0 0 10px">No recipient list loaded.</div><input id="recipFile2" type="file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="onSheet(event)"/><div id="obList2"></div></div>
+    </div>
+  </div>
+</div>
+<div class="app" id="app-live">
+  
+  <div class="appbar">
+    <div class="left">
+      <div class="brand" onclick="enterDash()"><span class="dot"></span>Polsia</div>
+      <div class="company-pill"><span class="live-dot"></span>Competitor radar</div>
+    </div>
+    <div class="right">
+      <button class="btn ghost sm" onclick="openNews()">News API</button>
+      <button class="btn ghost sm" onclick="crRefresh(true)">↻ Refresh</button>
+      <button class="btn ghost sm" onclick="enterDash()">← Dashboard</button>
+    </div>
+  </div>
+  <div class="app-main" style="grid-template-columns:1fr">
+    <div class="app-left">
+      <div class="board">
+        <div class="bhead"><h3>Competitor radar</h3><div class="alt" style="margin:0"><b id="lvCount">0</b> moves tracked</div></div>
+        <div class="alt" style="margin:0 0 12px">Real, public news on your competitors — launches, funding, press, hires — pulled live and refreshed every 90 seconds.</div>
+        <div id="crChips" class="cr-chips"></div>
+        <div id="crStatus" class="alt" style="margin:0 0 12px"></div>
+        <div id="lvFeed" class="lv-feed"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="app" id="app-dash">
+  <div class="appbar">
+    <div class="left">
+      <div class="brand" onclick="toast('Dashboard')"><span class="dot"></span>Polsia</div>
+      <div class="company-pill"><span class="live-dot"></span><span id="compName">Your company</span></div>
+    </div>
+    <div class="right">
+      <button class="btn ghost sm ai-pill" onclick="openAI()">Connect AI</button>
+      <button class="btn ghost sm" onclick="openLivePage()">Live</button>
+      <button class="btn ghost sm" onclick="openOutboxPage()">Outbox</button>
+      <button class="btn ghost sm" onclick="go('home');closeApp()">View site</button>
+      <button class="btn ghost sm" onclick="logout()">Sign out</button>
+    </div>
+  </div>
+  <div class="app-main">
+    <div class="app-left">
+      <div class="mrow">
+        <div class="metric"><div class="v" id="mDone">0</div><div class="l">Tasks done</div></div>
+        <div class="metric"><div class="v" id="mDeliv">0</div><div class="l">Deliverables</div></div>
+        <div class="metric"><div class="v" id="mWords">0</div><div class="l">Words written</div></div>
+        <div class="metric"><div class="v" id="mCalls">0</div><div class="l">AI calls</div></div>
+      </div>
+      <div class="agents">
+        <div class="agent"><div class="ah"><span class="name">◇ Planning</span><span class="badge idle" id="b-plan">Idle</span></div><div class="alog" id="log-plan"></div></div>
+        <div class="agent"><div class="ah"><span class="name">&lt;/&gt; Engineering</span><span class="badge idle" id="b-eng">Idle</span></div><div class="alog" id="log-eng"></div></div>
+        <div class="agent"><div class="ah"><span class="name">↗ Marketing</span><span class="badge idle" id="b-mkt">Idle</span></div><div class="alog" id="log-mkt"></div></div>
+        <div class="agent"><div class="ah"><span class="name">✉ Operations</span><span class="badge idle" id="b-ops">Idle</span></div><div class="alog" id="log-ops"></div></div>
+      </div>
+      <div class="board"><div class="bhead"><h3>Task board</h3><button class="btn sm" id="runBtn" onclick="toggleRun()">Run agents</button></div><div id="taskList"></div></div>
+      <div class="board" style="margin-top:26px"><h3 style="margin-bottom:12px">Deliverables</h3><div id="artList"></div></div>
+      <div class="board" style="margin-top:26px"><div class="bhead"><h3>Outbox · needs your approval</h3><button class="btn ghost sm" onclick="openOutboxPage()">Manage in Outbox</button></div><div class="alt" id="recipCount" style="margin:0 0 10px">No recipient list loaded.</div><input id="recipFile" type="file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="onSheet(event)"/><div id="obList"></div></div>
+    </div>
+    <div class="app-right">
+      <div class="god" id="godBox">
+        <div class="gh"><span class="name">∞ God Mode</span><span class="badge idle" id="godBadge">Off</span></div>
+        <div class="timer" id="godTimer">--:--:--</div>
+        <div class="ctrls">
+          <select id="godDur"><option value="1">1 hour</option><option value="6">6 hours</option><option value="24" selected>1 day</option><option value="72">3 days</option><option value="168">7 days</option></select>
+          <button class="btn sm" id="godBtn" onclick="toggleGod()">Start</button>
+        </div>
+        <div class="gnote">Runs the agents non-stop, generating real deliverables until the timer ends.</div>
+      </div>
+      <div class="chat-h">Steer Polsia</div>
+      <div class="chat-sub">Chat to redirect focus or add work. New requests become real tasks the agents execute.</div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-input"><input id="chatInput" placeholder="Tell Polsia what to focus on..." onkeydown="if(event.key==='Enter')chatSend()"/><button onclick="chatSend()">↑</button></div>
+    </div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="authModal">
+  <div class="modal">
+    <button class="x" onclick="closeAuth()">×</button>
+    <h3 id="authTitle">Log in</h3>
+    <p id="authSub">Welcome back. Log in to your Polsia workspace.</p>
+    <div class="field"><label>Email</label><input id="authEmail" type="email" placeholder="you@example.com"/></div>
+    <div class="field"><label>Password</label><input id="authPass" type="password" placeholder="At least 4 characters" onkeydown="if(event.key==='Enter')doAuth()"/></div>
+    <button class="btn" id="authBtn" onclick="doAuth()">Log in →</button>
+    <div class="alt" id="authForgot" style="margin-top:8px"><a onclick="forgotPassword()">Forgot password?</a></div>
+    <div class="alt" style="margin:10px 0 2px;opacity:.55">— or —</div>
+    <div id="gsiBtn" style="display:none;justify-content:center;margin-bottom:8px"></div>
+    <button class="btn ghost" id="googleBtn" onclick="googleAuth()" style="display:flex;align-items:center;justify-content:center;gap:8px"><span style="display:inline-flex;width:18px;height:18px;border-radius:50%;background:#fff;color:#444;font-weight:800;align-items:center;justify-content:center;font-size:12px">G</span> Continue with Google</button>
+    <div class="alt" id="authToggle"></div>
+    <div class="alt" style="margin-top:8px;font-size:11px">Passwords are hashed and stored on your device. For the smoothest, most secure sign-in, use Continue with Google.</div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="aiModal">
+  <div class="modal">
+    <button class="x" onclick="closeAI()">×</button>
+    <h3>Connect your AI</h3>
+    <p>Plug in your own API key so Polsia's agents produce real deliverables. Your key is stored only in this browser and requests go straight from your browser to the provider you pick.</p>
+    <div class="field"><label>Provider</label><select id="aiProvider" onchange="aiProviderChange()"><option value="">Not connected</option><option value="openai">OpenAI</option><option value="anthropic">Anthropic (Claude)</option><option value="compatible">OpenAI-compatible (OpenRouter, Groq, Ollama, local)</option></select></div>
+    <div class="field" id="aiBaseField" style="display:none"><label>Base URL</label><input id="aiBase" placeholder="http://localhost:11434/v1"/></div>
+    <div class="field"><label>API key</label><input id="aiKey" type="password" placeholder="sk-...  (any value for local servers)"/></div>
+    <div class="field"><label>Model</label><input id="aiModel" placeholder="gpt-4o-mini"/></div>
+    <button class="btn" onclick="saveAIForm()">Save</button>
+    <div class="alt" id="aiStatus"></div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="artModal">
+  <div class="modal wide">
+    <button class="x" onclick="closeArt()">×</button>
+    <h3 id="artTitle">Deliverable</h3>
+    <p id="artKind"></p>
+    <pre class="art-pre" id="artBody"></pre>
+    <div class="art-actions"><button class="btn" onclick="copyArt()">Copy</button><button class="btn ghost" onclick="dlArt()">Download</button></div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="listModal">
+  <div class="modal">
+    <button class="x" onclick="closeList()">×</button>
+    <h3>Current recipient list</h3>
+    <p id="listSub" class="alt">No recipients loaded.</p>
+    <div id="listBody" style="max-height:340px;overflow:auto;margin-top:10px"></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn ghost" onclick="document.getElementById('recipFile2').click();closeList()">Upload / replace list</button>
+      <button class="btn ghost" onclick="clearRecipients()">Clear list</button>
+    </div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="emailModal">
+  <div class="modal">
+    <button class="x" onclick="closeEmail()">×</button>
+    <h3>Set up real email sending</h3>
+    <p>Polsia sends real email through your own free EmailJS account. Create one at emailjs.com, connect an email service, build a template, then paste the three IDs below. Stored only in this browser.</p>
+    <div class="field"><label>Public key</label><input id="emPublic" placeholder="EmailJS public key"/></div>
+    <div class="field"><label>Service ID</label><input id="emService" placeholder="service_xxxxxxx"/></div>
+    <div class="field"><label>Template ID</label><input id="emTemplate" placeholder="template_xxxxxxx"/></div>
+    <div class="field"><label>From name</label><input id="emFrom" placeholder="Your name or company"/></div>
+    <button class="btn" onclick="saveEmailForm()">Save</button>
+    <div class="alt" id="emStatus"></div>
+    <div class="alt" style="margin-top:8px;font-size:11px">Your EmailJS template must include these variables: to_email, to_name, subject, message, from_name.</div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="xModal">
+  <div class="modal">
+    <button class="x" onclick="closeX()">×</button>
+    <h3>Set up automatic posting to X</h3>
+    <p>For security, X does not allow posting directly from a web page. To post automatically with no clicking, connect a free automation webhook that is linked to your X account, then paste its URL below.</p>
+    <div class="field"><label>Webhook URL</label><input id="xHook" placeholder="https://hooks.zapier.com/...  (or Make / IFTTT / your endpoint)"/></div>
+    <button class="btn" onclick="saveXForm()">Save</button>
+    <div class="alt" id="xStatus"></div>
+    <div class="alt" style="margin-top:10px;font-size:11px;line-height:1.7">Get a webhook in about 2 minutes:<br>1. Create a free Zapier account (Make or IFTTT also work).<br>2. New Zap, Trigger: "Webhooks by Zapier" then "Catch Hook". Copy the webhook URL it gives you.<br>3. Action: "Twitter / X" then "Create Tweet", and map the tweet text to the hook's text value.<br>4. Turn the Zap on and paste the URL here. Polsia sends the post text to it and your tweet goes live automatically.</div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="newsModal">
+  <div class="modal">
+    <button class="x" onclick="closeNews()">×</button>
+    <h3>Live news source</h3>
+    <p>Choose where the Competitor radar pulls real news from. NewsData.io has the best free tier for every industry — 200 requests per day and commercial use is allowed. Leave it on Google News to use the no-key option.</p>
+    <div class="field"><label>Provider</label><select id="nsProvider" onchange="nsToggleKey()"><option value="newsdata">NewsData.io — free, all industries (recommended)</option><option value="gnews">GNews.io — 100 per day</option><option value="newsapi">NewsAPI.org — 100 per day</option><option value="thenewsapi">TheNewsAPI — 100 per day</option><option value="google">Google News — no key needed</option></select></div>
+    <div class="field" id="nsKeyWrap"><label>API key</label><input id="nsKey" placeholder="Paste your API key"/></div>
+    <button class="btn" onclick="saveNewsForm()">Save</button>
+    <div class="alt" id="nsStatus"></div>
+    <div class="alt" style="margin-top:10px;font-size:11px;line-height:1.7">Get a free key in about a minute:<br>1. Recommended: sign up at newsdata.io, open your Dashboard, and copy the API key.<br>2. Choose the matching provider above, paste the key, and Save.<br>3. If a provider blocks browser requests, Polsia automatically routes through a proxy so it still works when hosted.</div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="js/app.js"></script>
+</body>
+</html>

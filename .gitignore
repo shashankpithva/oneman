@@ -1,0 +1,13 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Dependencies (none required — app is static)
+node_modules/
+
+# Local env / secrets (never commit API keys)
+.env
+*.local
