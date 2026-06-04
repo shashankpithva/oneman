@@ -271,6 +271,7 @@
         <div class="metric"><div class="v" id="mWords">0</div><div class="l">Words written</div></div>
         <div class="metric"><div class="v" id="mCalls">0</div><div class="l">AI calls</div></div>
       </div>
+      <div class="board" id="reportBoard"><div class="bhead"><h3>Business report</h3><button class="btn ghost sm" id="reportRegen" onclick="generateReport()">Regenerate</button></div><div id="reportBody" class="report-body"><div class="empty">Connect AI to auto-generate your business report.</div></div></div>
       <div class="agents">
         <div class="agent"><div class="ah"><span class="name">◇ Planning</span><span class="badge idle" id="b-plan">Idle</span></div><div class="alog" id="log-plan"></div></div>
         <div class="agent"><div class="ah"><span class="name">&lt;/&gt; Engineering</span><span class="badge idle" id="b-eng">Idle</span></div><div class="alog" id="log-eng"></div></div>
@@ -315,7 +316,7 @@
   <div class="app-main" style="grid-template-columns:1fr">
     <div class="app-left">
       <div class="board"><div class="bhead"><h3>Task board</h3><button class="btn sm" id="runBtn" onclick="toggleRun()">Run agents</button></div><div id="taskList"></div></div>
-      <div class="board" style="margin-top:26px"><div class="bhead"><h3>Deliverables</h3><button class="btn sm" onclick="generateReport()">📊 Generate report</button></div><div id="artList"></div></div>
+      <div class="board" style="margin-top:26px"><h3 style="margin-bottom:12px">Deliverables</h3><div id="artList"></div></div>
     </div>
   </div>
 </div>
