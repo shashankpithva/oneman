@@ -175,6 +175,7 @@
         <button class="tab" onclick="enterDash()">Dashboard</button>
         <button class="tab active" onclick="openOutboxPage()">Outbox</button>
         <button class="tab" onclick="openLivePage()">Radar</button>
+        <button class="tab" onclick="openWorkPage()">Work</button>
       </nav>
       <div class="menu">
         <button class="btn ghost sm" onclick="toggleMenu(event,'obMenu')">Settings ▾</button>
@@ -208,6 +209,7 @@
         <button class="tab" onclick="enterDash()">Dashboard</button>
         <button class="tab" onclick="openOutboxPage()">Outbox</button>
         <button class="tab active" onclick="openLivePage()">Radar</button>
+        <button class="tab" onclick="openWorkPage()">Work</button>
       </nav>
       <button class="btn sm" onclick="crRefresh(true)">↻ Refresh</button>
       <div class="menu">
@@ -241,6 +243,7 @@
         <button class="tab active" onclick="enterDash()">Dashboard</button>
         <button class="tab" onclick="openOutboxPage()">Outbox</button>
         <button class="tab" onclick="openLivePage()">Radar</button>
+        <button class="tab" onclick="openWorkPage()">Work</button>
       </nav>
       <button class="btn ghost sm ai-pill" onclick="openAI()">Connect AI</button>
       <div class="menu">
@@ -272,8 +275,7 @@
         <div class="agent"><div class="ah"><span class="name">↗ Marketing</span><span class="badge idle" id="b-mkt">Idle</span></div><div class="alog" id="log-mkt"></div></div>
         <div class="agent"><div class="ah"><span class="name">✉ Operations</span><span class="badge idle" id="b-ops">Idle</span></div><div class="alog" id="log-ops"></div></div>
       </div>
-      <div class="board"><div class="bhead"><h3>Task board</h3><button class="btn sm" id="runBtn" onclick="toggleRun()">Run agents</button></div><div id="taskList"></div></div>
-      <div class="board" style="margin-top:26px"><h3 style="margin-bottom:12px">Deliverables</h3><div id="artList"></div></div>
+      <div class="board"><div class="bhead"><h3>Running now</h3><div style="display:flex;gap:8px;align-items:center"><button class="btn ghost sm" onclick="openWorkPage()">Task board &amp; deliverables ↗</button><button class="btn sm" id="runBtnDash" onclick="toggleRun()">Run agents</button></div></div><div id="runList"></div></div>
       <div class="board" style="margin-top:26px"><div class="bhead"><h3>Outbox · needs your approval</h3><button class="btn ghost sm" onclick="openOutboxPage()">Manage in Outbox</button></div><div class="alt" id="recipCount" style="margin:0 0 10px">No recipient list loaded.</div><input id="recipFile" type="file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="onSheet(event)"/><div id="obList"></div></div>
     </div>
     <div class="app-right">
@@ -291,6 +293,45 @@
       <div class="chat-log" id="chatLog"></div>
       <div class="chat-input"><input id="chatInput" placeholder="Tell Polsia what to focus on..." onkeydown="if(event.key==='Enter')chatSend()"/><button onclick="chatSend()">↑</button></div>
     </div>
+  </div>
+</div>
+<div class="app" id="app-work">
+  <div class="appbar">
+    <div class="left">
+      <div class="brand" onclick="enterDash()"><span class="dot"></span>Polsia</div>
+      <div class="company-pill"><span class="live-dot"></span>Work</div>
+    </div>
+    <div class="right">
+      <nav class="tabs">
+        <button class="tab" onclick="enterDash()">Dashboard</button>
+        <button class="tab" onclick="openOutboxPage()">Outbox</button>
+        <button class="tab" onclick="openLivePage()">Radar</button>
+        <button class="tab active" onclick="openWorkPage()">Work</button>
+      </nav>
+    </div>
+  </div>
+  <div class="app-main" style="grid-template-columns:1fr">
+    <div class="app-left">
+      <div class="board"><div class="bhead"><h3>Task board</h3><button class="btn sm" id="runBtn" onclick="toggleRun()">Run agents</button></div><div id="taskList"></div></div>
+      <div class="board" style="margin-top:26px"><h3 style="margin-bottom:12px">Deliverables</h3><div id="artList"></div></div>
+    </div>
+  </div>
+</div>
+<div class="modal-bg hidden" id="editModal">
+  <div class="modal">
+    <button class="x" onclick="closeEdit()">×</button>
+    <h3>Edit before approving</h3>
+    <p id="editSub">Make your changes, then approve from the Outbox.</p>
+    <div id="editSubjWrap" style="margin:0 0 12px">
+      <label class="alt" style="display:block;margin:0 0 6px">Subject</label>
+      <input id="editSubj" style="width:100%"/>
+    </div>
+    <div style="margin:0 0 8px">
+      <label class="alt" id="editBodyLabel" style="display:block;margin:0 0 6px">Message</label>
+      <textarea id="editBody" rows="10" oninput="editCount()" style="width:100%;font-family:inherit;font-size:14px;line-height:1.6;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);resize:vertical"></textarea>
+    </div>
+    <div id="editCount" class="alt" style="margin:0 0 14px"></div>
+    <button class="btn" onclick="saveEditOutbox()">Save changes</button>
   </div>
 </div>
 <div class="modal-bg hidden" id="authModal">
