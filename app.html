@@ -360,12 +360,15 @@
 <div class="modal-bg hidden" id="xModal">
   <div class="modal">
     <button class="x" onclick="closeX()">×</button>
-    <h3>Set up automatic posting to X</h3>
-    <p>For security, X does not allow posting directly from a web page. To post automatically with no clicking, connect a free automation webhook that is linked to your X account, then paste its URL below.</p>
-    <div class="field"><label>Webhook URL</label><input id="xHook" placeholder="https://hooks.zapier.com/...  (or Make / IFTTT / your endpoint)"/></div>
-    <button class="btn" onclick="saveXForm()">Save</button>
-    <div class="alt" id="xStatus"></div>
-    <div class="alt" style="margin-top:10px;font-size:11px;line-height:1.7">Get a webhook in about 2 minutes:<br>1. Create a free Zapier account (Make or IFTTT also work).<br>2. New Zap, Trigger: "Webhooks by Zapier" then "Catch Hook". Copy the webhook URL it gives you.<br>3. Action: "Twitter / X" then "Create Tweet", and map the tweet text to the hook's text value.<br>4. Turn the Zap on and paste the URL here. Polsia sends the post text to it and your tweet goes live automatically.</div>
+    <h3>Posting to your socials</h3>
+    <p>No setup, no webhook, no fees. When you approve a social post in the Outbox, Polsia opens the network's composer with your text already filled in — you just hit <b>Post</b> to confirm.</p>
+    <div class="alt" style="margin-top:14px;font-size:13px;line-height:1.9">
+      <b>𝕏 / X</b> — opens the post box pre-filled. One click to publish.<br>
+      <b>LinkedIn</b> — opens the share composer pre-filled. One click to publish.<br>
+      <b>Instagram</b> — copies your caption and opens Instagram (their rules don't allow pre-filling), so you just paste it in.
+    </div>
+    <div class="alt" style="margin-top:12px;font-size:11px;line-height:1.7">Why not fully hands-off? Auto-posting safely needs your private login tokens on a server, and this site is public — any key placed here could be stolen and used to post as you. The 1-click composer keeps your accounts safe and stays completely free.</div>
+    <button class="btn" onclick="closeX()">Got it</button>
   </div>
 </div>
 <div class="modal-bg hidden" id="newsModal">
