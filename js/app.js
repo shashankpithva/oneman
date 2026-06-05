@@ -28,7 +28,7 @@ function refreshAIStatus(){var el=document.getElementById('aiStatus');if(el)el.t
 function updateAIPills(){document.querySelectorAll('.ai-pill').forEach(function(e){e.textContent=aiReady()?('AI: '+AI.provider):'Connect AI'});var b=document.getElementById('aiBanner');if(b)b.style.display=aiReady()?'none':'block'}
 function extractJSON(s){if(!s)return null;s=String(s).replace(/```json/gi,'').replace(/```/g,'').trim();var a=s.indexOf('{'),b=s.lastIndexOf('}');if(a>=0&&b>a){try{return JSON.parse(s.slice(a,b+1))}catch(e){}}try{return JSON.parse(s)}catch(e){return null}}
 async function llmSleep(ms){return new Promise(function(res){setTimeout(res,ms)})}
-async function llmFetch(url,init){var delays=[];var last=0;for(var i=0;i<=delays.length;i++){var resp;try{resp=await fetch(url,init)}catch(netErr){if(i<delays.length){await llmSleep(delays[i]);continue}throw netErr}if(resp.ok)return resp;last=resp.status;if((resp.status===429||resp.status===500||resp.status===502||resp.status===503)&&i<delays.length){var raw=0;try{raw=parseInt(resp.headers.get('retry-after')||'0',10)}catch(e){raw=0}var wait=raw>0?(raw*1000):delays[i];if(typeof setSiteStage==='function'){try{setSiteStage('Your AI is rate-limiting the build (HTTP '+resp.status+'). Waiting '+Math.round(wait/1000)+'s, then retrying...')}catch(e){}}await llmSleep(wait);continue}throw new Error('HTTP '+resp.status)}throw new Error('HTTP '+last)}
+async function llmFetch(url,init){var resp=await fetch(url,init);if(resp.ok)return resp;throw new Error('HTTP '+resp.status)}
 async function llmChat(messages,system,opts){opts=opts||{};if(!aiReady())throw new Error('No API key');
  if(AI.provider==='anthropic'){
   var aurl='https://'+'api.anthropic.com/v1/messages';
