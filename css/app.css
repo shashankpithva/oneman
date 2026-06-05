@@ -368,3 +368,11 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
 @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-48px,44px) scale(1.07)}}
 @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(46px,-36px) scale(1.05)}}
 @media(prefers-reduced-motion:reduce){.app::before,.app::after,.ob::before,.hero-glow{animation:none}}
+
+/* paired task + deliverable grid (Work page) */
+.pairhead{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+.pairhead>div{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);font-weight:600;padding-left:2px}
+.pairgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
+.pairgrid .task,.pairgrid .art{margin-bottom:0;height:100%}
+.art-empty{display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted2);font-size:12.5px;background:transparent;padding:14px}
+@media(max-width:720px){.pairhead,.pairgrid{grid-template-columns:1fr}.pairhead>div:nth-child(2){display:none}}
