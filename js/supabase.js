@@ -4,8 +4,8 @@
       into the two constants below.
    3. If you leave these blank, Polsia silently keeps working in local-only
       (localStorage) mode, exactly like before. */
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+const SUPABASE_URL = 'https://uwigvlbnuvfbccnybbby.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3aWd2bGJudXZmYmNjbnliYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MDgwMDMsImV4cCI6MjA5NjE4NDAwM30.rGIvGMwwMXCfFUHoRQz0rUbIyl49vV9P81Sbgc2siXQ';
 const STATE_TABLE = 'polsia_state';
 
 (function () {
