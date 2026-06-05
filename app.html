@@ -352,6 +352,56 @@
     <div class="field"><label>Primary call-to-action</label><select id="siteCta"><option>Join waitlist</option><option>Book a call</option><option>Buy now</option><option>Sign up</option><option>Contact us</option><option>Get started</option></select></div>
     <div class="field"><label>Contact email</label><input id="siteEmail" type="email" placeholder="you@company.com"/></div>
     <div class="field"><label>Brand vibe / colors (optional)</label><input id="siteVibe" placeholder="e.g. warm, earthy, premium"/></div>
+    <div class="field">
+      <label>Website style</label>
+      <div class="theme-grid" id="themeGrid">
+        <div class="theme-card selected" data-theme="dark-tech" onclick="pickTheme(this)">
+          <div class="tc-preview" style="background:#07080f;border-bottom:2px solid #6c5ce7">
+            <div style="width:60%;height:6px;background:#6c5ce7;border-radius:3px;margin:0 auto 6px"></div>
+            <div style="width:80%;height:3px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 4px"></div>
+            <div style="width:50%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin:0 auto"></div>
+          </div>
+          <div class="tc-name">Dark Tech</div>
+          <div class="tc-desc">SaaS / startup</div>
+        </div>
+        <div class="theme-card" data-theme="light-pro" onclick="pickTheme(this)">
+          <div class="tc-preview" style="background:#ffffff;border-bottom:2px solid #0f0f0f">
+            <div style="width:55%;height:6px;background:#0f0f0f;border-radius:3px;margin:0 auto 6px"></div>
+            <div style="width:75%;height:3px;background:rgba(0,0,0,0.15);border-radius:2px;margin:0 auto 4px"></div>
+            <div style="width:45%;height:3px;background:rgba(0,0,0,0.08);border-radius:2px;margin:0 auto"></div>
+          </div>
+          <div class="tc-name">Light &amp; Clean</div>
+          <div class="tc-desc">Professional / finance</div>
+        </div>
+        <div class="theme-card" data-theme="bold-creative" onclick="pickTheme(this)">
+          <div class="tc-preview" style="background:#0a0a0a;border-bottom:2px solid #ff3c5f">
+            <div style="width:90%;height:8px;background:#ff3c5f;border-radius:2px;margin:0 auto 5px"></div>
+            <div style="width:60%;height:3px;background:rgba(255,255,255,0.25);border-radius:2px;margin:0 auto"></div>
+          </div>
+          <div class="tc-name">Bold Creative</div>
+          <div class="tc-desc">Agency / design</div>
+        </div>
+        <div class="theme-card" data-theme="warm-trust" onclick="pickTheme(this)">
+          <div class="tc-preview" style="background:#fdf6ee;border-bottom:2px solid #e07b39">
+            <div style="width:55%;height:6px;background:#e07b39;border-radius:3px;margin:0 auto 6px"></div>
+            <div style="width:70%;height:3px;background:rgba(0,0,0,0.12);border-radius:2px;margin:0 auto 4px"></div>
+            <div style="width:40%;height:3px;background:rgba(0,0,0,0.07);border-radius:2px;margin:0 auto"></div>
+          </div>
+          <div class="tc-name">Warm &amp; Friendly</div>
+          <div class="tc-desc">Health / food / services</div>
+        </div>
+        <div class="theme-card" data-theme="minimal" onclick="pickTheme(this)">
+          <div class="tc-preview" style="background:#fafafa;border-bottom:1px solid #e5e5e5">
+            <div style="width:45%;height:5px;background:#111;border-radius:2px;margin:0 auto 8px"></div>
+            <div style="width:65%;height:2px;background:#ccc;border-radius:1px;margin:0 auto 5px"></div>
+            <div style="width:35%;height:2px;background:#ddd;border-radius:1px;margin:0 auto"></div>
+          </div>
+          <div class="tc-name">Minimal</div>
+          <div class="tc-desc">Luxury / consulting</div>
+        </div>
+      </div>
+      <input type="hidden" id="siteTheme" value="dark-tech"/>
+    </div>
     <button class="btn" onclick="submitSite()">Generate &amp; deploy website →</button>
   </div>
 </div>
