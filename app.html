@@ -239,6 +239,7 @@
     <div class="left">
       <div class="brand" onclick="toast('Dashboard')"><span class="dot"></span>Polsia</div>
       <div class="company-pill"><span class="live-dot"></span><span id="compName">Your company</span></div>
+      <button class="btn ghost" id="reportOpenBtn" style="margin-left:10px" onclick="openReport()"><span class="mi">📊</span> Business report</button>
     </div>
     <div class="right">
       <nav class="tabs">
@@ -272,7 +273,6 @@
         <div class="metric"><div class="v" id="mWords">0</div><div class="l">Words written</div></div>
         <div class="metric"><div class="v" id="mCalls">0</div><div class="l">AI calls</div></div>
       </div>
-      <button class="btn ghost sm" id="reportOpenBtn" style="margin:2px 0 12px;align-self:flex-start" onclick="openReport()"><span class="mi">📊</span> Business report</button>
       <div class="agents">
         <div class="agent"><div class="ah"><span class="name">◇ Planning</span><span class="badge idle" id="b-plan">Idle</span></div><div class="alog" id="log-plan"></div></div>
         <div class="agent"><div class="ah"><span class="name">&lt;/&gt; Engineering</span><span class="badge idle" id="b-eng">Idle</span></div><div class="alog" id="log-eng"></div></div>
