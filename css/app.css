@@ -376,3 +376,13 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
 .pairgrid .task,.pairgrid .art{margin-bottom:0;height:100%}
 .art-empty{display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted2);font-size:12.5px;background:transparent;padding:14px}
 @media(max-width:720px){.pairhead,.pairgrid{grid-template-columns:1fr}.pairhead>div:nth-child(2){display:none}}
+
+/* auto-built website card + modal */
+.pill-ok{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--ok-soft);color:var(--ok)}
+.site-link{display:block;word-break:break-all;font-size:12.5px;color:var(--accent);background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 12px;text-decoration:none}
+.site-link:hover{text-decoration:underline}
+.site-actions{display:flex;gap:8px;flex-wrap:wrap}
+.site-building{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px;padding:6px 0}
+.spin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);border-top-color:transparent;animation:spin 1s linear infinite;display:inline-block}
+.modal textarea,.modal select{width:100%;font-family:inherit;font-size:14px;line-height:1.5;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.modal textarea{resize:vertical}

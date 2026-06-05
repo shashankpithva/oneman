@@ -260,7 +260,7 @@
           <button onclick="openEmail()"><span class="mi">✉</span>Email setup</button>
           <button onclick="openX()"><span class="mi">𝕏</span>X setup</button>
           <button onclick="openNews()"><span class="mi">📰</span>News API</button>
-          <button onclick="openReport()"><span class="mi">📊</span>Business report</button>
+          <button onclick="openReport()"><span class="mi">📊</span>Business report</button><button onclick="openSiteModal()"><span class="mi">🌐</span>Website</button>
           <div class="menu-div"></div>
           <button onclick="go('home');closeApp()"><span class="mi">↗</span>View site</button>
           <button onclick="logout()"><span class="mi">⏋</span>Sign out</button>
@@ -270,6 +270,7 @@
   </div>
   <div class="app-main">
     <div class="app-left">
+      <div class="board" id="siteCard" style="margin-bottom:26px"></div>
       <div class="mrow">
         <div class="metric"><div class="v" id="mDone">0</div><div class="l">Tasks done</div></div>
         <div class="metric"><div class="v" id="mDeliv">0</div><div class="l">Deliverables</div></div>
@@ -338,6 +339,20 @@
     </div>
     <div id="editCount" class="alt" style="margin:0 0 14px"></div>
     <button class="btn" onclick="saveEditOutbox()">Save changes</button>
+  </div>
+</div>
+<div class="modal-bg hidden" id="siteModal">
+  <div class="modal">
+    <button class="x" onclick="closeSiteModal()">×</button>
+    <h3>Build your website</h3>
+    <p>Answer a few quick questions and Polsia will design and deploy a live site automatically.</p>
+    <div class="field"><label>Company</label><input id="siteCompany" disabled/></div>
+    <div class="field"><label>What does your business do?</label><textarea id="siteOffer" rows="2" placeholder="e.g. We deliver rare houseplants on a monthly subscription"></textarea></div>
+    <div class="field"><label>Who is it for?</label><input id="siteAudience" placeholder="e.g. urban plant lovers and beginner gardeners"/></div>
+    <div class="field"><label>Primary call-to-action</label><select id="siteCta"><option>Join waitlist</option><option>Book a call</option><option>Buy now</option><option>Sign up</option><option>Contact us</option><option>Get started</option></select></div>
+    <div class="field"><label>Contact email</label><input id="siteEmail" type="email" placeholder="you@company.com"/></div>
+    <div class="field"><label>Brand vibe / colors (optional)</label><input id="siteVibe" placeholder="e.g. warm, earthy, premium"/></div>
+    <button class="btn" onclick="submitSite()">Generate &amp; deploy website →</button>
   </div>
 </div>
 <div class="modal-bg hidden" id="authModal">
