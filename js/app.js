@@ -27,19 +27,21 @@ function saveAIForm(){AI.provider=document.getElementById('aiProvider').value;AI
 function refreshAIStatus(){var el=document.getElementById('aiStatus');if(el)el.textContent=aiReady()?('Connected: '+AI.provider+' ('+(AI.model||'default model')+')'):'Not connected. Agents will not produce real output until you connect a provider.'}
 function updateAIPills(){document.querySelectorAll('.ai-pill').forEach(function(e){e.textContent=aiReady()?('AI: '+AI.provider):'Connect AI'});var b=document.getElementById('aiBanner');if(b)b.style.display=aiReady()?'none':'block'}
 function extractJSON(s){if(!s)return null;s=String(s).replace(/```json/gi,'').replace(/```/g,'').trim();var a=s.indexOf('{'),b=s.lastIndexOf('}');if(a>=0&&b>a){try{return JSON.parse(s.slice(a,b+1))}catch(e){}}try{return JSON.parse(s)}catch(e){return null}}
+async function llmSleep(ms){return new Promise(function(res){setTimeout(res,ms)})}
+async function llmFetch(url,init){var delays=[2000,4000,8000,15000];var last=0;for(var i=0;i<=delays.length;i++){var resp;try{resp=await fetch(url,init)}catch(netErr){if(i<delays.length){await llmSleep(delays[i]);continue}throw netErr}if(resp.ok)return resp;last=resp.status;if((resp.status===429||resp.status===500||resp.status===502||resp.status===503)&&i<delays.length){var raw=0;try{raw=parseInt(resp.headers.get('retry-after')||'0',10)}catch(e){raw=0}var wait=raw>0?(raw*1000):delays[i];if(typeof setSiteStage==='function'){try{setSiteStage('Your AI is rate-limiting the build (HTTP '+resp.status+'). Waiting '+Math.round(wait/1000)+'s, then retrying...')}catch(e){}}await llmSleep(wait);continue}throw new Error('HTTP '+resp.status)}throw new Error('HTTP '+last)}
 async function llmChat(messages,system,opts){opts=opts||{};if(!aiReady())throw new Error('No API key');
  if(AI.provider==='anthropic'){
   var aurl='https://'+'api.anthropic.com/v1/messages';
-  var ra=await fetch(aurl,{method:'POST',headers:{'content-type':'application/json','x-api-key':AI.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:AI.model||'claude-3-5-sonnet-latest',max_tokens:(opts.maxTokens||1800),system:system||'',messages:messages})});
-  if(!ra.ok)throw new Error('HTTP '+ra.status);var ja=await ra.json();return (ja.content||[]).map(function(c){return c.text||''}).join('');
+  var ra=await llmFetch(aurl,{method:'POST',headers:{'content-type':'application/json','x-api-key':AI.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:AI.model||'claude-3-5-sonnet-latest',max_tokens:(opts.maxTokens||1800),system:system||'',messages:messages})});
+  var ja=await ra.json();return (ja.content||[]).map(function(c){return c.text||''}).join('');
  }
  var base=AI.provider==='compatible'?(AI.base||'').replace(/[/]+$/,''):('https://'+'api.openai.com/v1');
  if(AI.provider==='compatible'&&!base)throw new Error('Base URL required');
  var msgs=system?[{role:'system',content:system}].concat(messages):messages;
  var body={model:AI.model||'gpt-4o-mini',messages:msgs,temperature:opts.temp==null?0.7:opts.temp};
  if(opts.json)body.response_format={type:'json_object'};if(opts.maxTokens)body.max_tokens=opts.maxTokens;
- var r=await fetch(base+'/chat/completions',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+AI.key},body:JSON.stringify(body)});
- if(!r.ok)throw new Error('HTTP '+r.status);var j=await r.json();return j.choices[0].message.content;
+ var r=await llmFetch(base+'/chat/completions',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+AI.key},body:JSON.stringify(body)});
+ var j=await r.json();return j.choices[0].message.content;
 }
 
 function go(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));const el=document.getElementById('view-'+v);if(el)el.classList.add('active');document.getElementById('site').style.display='block';document.querySelectorAll('.app').forEach(a=>a.classList.remove('active'));window.scrollTo(0,0)}
