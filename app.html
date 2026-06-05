@@ -256,7 +256,7 @@
           <button onclick="openEmail()"><span class="mi">✉</span>Email setup</button>
           <button onclick="openX()"><span class="mi">𝕏</span>X setup</button>
           <button onclick="openNews()"><span class="mi">📰</span>News API</button>
-          <button onclick="generateReport()"><span class="mi">📊</span>Generate report</button>
+          <button onclick="openReport()"><span class="mi">📊</span>Business report</button>
           <div class="menu-div"></div>
           <button onclick="go('home');closeApp()"><span class="mi">↗</span>View site</button>
           <button onclick="logout()"><span class="mi">⏋</span>Sign out</button>
@@ -272,7 +272,7 @@
         <div class="metric"><div class="v" id="mWords">0</div><div class="l">Words written</div></div>
         <div class="metric"><div class="v" id="mCalls">0</div><div class="l">AI calls</div></div>
       </div>
-      <div class="board" id="reportBoard"><div class="bhead"><h3>Business report</h3><button class="btn ghost sm" id="reportRegen" onclick="generateReport()">Regenerate</button></div><div id="reportBody" class="report-body"><div class="empty">Connect AI to auto-generate your business report.</div></div></div>
+      <button class="btn ghost sm" id="reportOpenBtn" style="margin:2px 0 12px;align-self:flex-start" onclick="openReport()"><span class="mi">📊</span> Business report</button>
       <div class="agents">
         <div class="agent"><div class="ah"><span class="name">◇ Planning</span><span class="badge idle" id="b-plan">Idle</span></div><div class="alog" id="log-plan"></div></div>
         <div class="agent"><div class="ah"><span class="name">&lt;/&gt; Engineering</span><span class="badge idle" id="b-eng">Idle</span></div><div class="alog" id="log-eng"></div></div>
@@ -367,7 +367,14 @@
     <div class="alt" id="aiStatus"></div>
   </div>
 </div>
-<div class="modal-bg hidden" id="artModal">
+<div class="modal-bg hidden" id="reportModal">
+    <div class="modal">
+      <button class="x" onclick="closeReport()">×</button>
+      <div class="bhead"><h3>Business report</h3><button class="btn ghost sm" id="reportRegen" onclick="generateReport()">Regenerate</button></div>
+      <div id="reportBody" class="report-body"><div class="empty">Connect AI to auto-generate your business report.</div></div>
+    </div>
+  </div>
+  <div class="modal-bg hidden" id="artModal">
   <div class="modal wide">
     <button class="x" onclick="closeArt()">×</button>
     <h3 id="artTitle">Deliverable</h3>
