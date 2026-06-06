@@ -251,14 +251,63 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
 .boot-line.welcome{margin-top:8px;color:#fff;font-size:16px;font-weight:700;letter-spacing:.01em;font-family:'Space Grotesk','Inter',sans-serif;animation:bootpop .4s ease both}
 .boot-line.welcome b{color:#f0b48f}
 
-/* ---------- SCROLL CUE ---------- */
-.scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:9px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted2);opacity:0;animation:cuein .9s ease .9s forwards;transition:color .2s}
-.scroll-cue:hover{color:var(--accent)}
-.scroll-cue .mouse{width:24px;height:38px;border:2px solid currentColor;border-radius:14px;display:flex;justify-content:center;padding-top:7px}
-.scroll-cue .mouse::before{content:'';width:4px;height:7px;border-radius:2px;background:currentColor;animation:wheel 1.7s ease-in-out infinite}
-@keyframes wheel{0%{transform:translateY(0);opacity:1}70%{transform:translateY(9px);opacity:0}100%{transform:translateY(0);opacity:0}}
-@keyframes cuein{to{opacity:1}}
-@media(max-height:680px){.scroll-cue{display:none}}
+/* ---------- MOTION PACK (added animations) ---------- */
+/* Slow sheen sweeping across the hero headline */
+.hero h1{background:linear-gradient(100deg,var(--fg) 0%,var(--fg) 42%,var(--accent) 50%,var(--fg) 58%,var(--fg) 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:heroIn .85s cubic-bezier(.22,.61,.36,1) .13s both,heroSheen 7s ease-in-out 1.6s infinite}
+@keyframes heroSheen{0%,100%{background-position:0 0}50%{background-position:100% 0}}
+
+/* Gloss sweep across buttons on hover */
+.btn{position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;top:0;left:-135%;width:55%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-20deg);pointer-events:none}
+.btn:hover::after{animation:btnGloss .8s ease}
+@keyframes btnGloss{to{left:135%}}
+
+/* Feature cards & pricing plans cascade in */
+.grid .card.reveal:nth-child(2){transition-delay:.07s}
+.grid .card.reveal:nth-child(3){transition-delay:.14s}
+.grid .card.reveal:nth-child(4){transition-delay:.21s}
+.grid .card.reveal:nth-child(5){transition-delay:.28s}
+.grid .card.reveal:nth-child(6){transition-delay:.35s}
+.pricing-grid .plan.reveal:nth-child(2){transition-delay:.1s}
+.pricing-grid .plan.reveal:nth-child(3){transition-delay:.2s}
+
+/* Blog posts cascade when their grid reveals */
+.blog-grid.reveal .post{opacity:0;transform:translateY(16px)}
+.blog-grid.reveal.in .post{animation:postIn .6s cubic-bezier(.22,.61,.36,1) forwards}
+.blog-grid.reveal.in .post:nth-child(2){animation-delay:.07s}
+.blog-grid.reveal.in .post:nth-child(3){animation-delay:.14s}
+.blog-grid.reveal.in .post:nth-child(4){animation-delay:.21s}
+.blog-grid.reveal.in .post:nth-child(5){animation-delay:.28s}
+.blog-grid.reveal.in .post:nth-child(6){animation-delay:.35s}
+@keyframes postIn{to{opacity:1;transform:none}}
+
+/* Stat numbers pop up when the row reveals */
+.stats.reveal.in .stat .num{animation:statPop .6s cubic-bezier(.2,.8,.2,1) both}
+.stats.reveal.in .stat:nth-child(2) .num{animation-delay:.08s}
+.stats.reveal.in .stat:nth-child(3) .num{animation-delay:.16s}
+.stats.reveal.in .stat:nth-child(4) .num{animation-delay:.24s}
+@keyframes statPop{from{opacity:0;transform:translateY(12px) scale(.9)}to{opacity:1;transform:none}}
+
+/* Step rows slide in sequentially */
+.steps.reveal.in .step{animation:stepIn .55s cubic-bezier(.22,.61,.36,1) both}
+.steps.reveal.in .step:nth-child(2){animation-delay:.06s}
+.steps.reveal.in .step:nth-child(3){animation-delay:.12s}
+.steps.reveal.in .step:nth-child(4){animation-delay:.18s}
+.steps.reveal.in .step:nth-child(5){animation-delay:.24s}
+.steps.reveal.in .step:nth-child(6){animation-delay:.3s}
+.steps.reveal.in .step:nth-child(7){animation-delay:.36s}
+@keyframes stepIn{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+
+/* God Mode badge gently floats */
+.god-badge{animation:badgeFloat 3.2s ease-in-out infinite}
+@keyframes badgeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* Card icon springs on hover */
+.card:hover .ic{animation:icPop .42s ease}
+@keyframes icPop{0%{transform:scale(1) rotate(0)}55%{transform:scale(1.16) rotate(-7deg)}100%{transform:scale(1.08) rotate(-4deg)}}
+
+/* Live ticker dot grows on hover */
+.live-ticker:hover .pulse{transform:scale(1.18)}
 
 /* ---------- REDUCED MOTION ---------- */
 @media(prefers-reduced-motion:reduce){
@@ -266,6 +315,12 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
   .boot-term{animation:none}
   .hero-glow{animation:none}
   .hero>*:not(.hero-glow){opacity:1;animation:none}
-  .scroll-cue{animation:none;opacity:1}
-  .scroll-cue .mouse::before{animation:none}
+  .hero h1{animation:none;background:none;-webkit-text-fill-color:currentColor}
+  .btn:hover::after{animation:none}
+  .god-badge{animation:none}
+  .card:hover .ic{animation:none}
+  .blog-grid.reveal .post{opacity:1;transform:none}
+  .blog-grid.reveal.in .post{animation:none}
+  .stats.reveal.in .stat .num{animation:none}
+  .steps.reveal.in .step{animation:none}
 }
