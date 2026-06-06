@@ -186,20 +186,47 @@
       ". For each, pick one specific relevant partner/decision-maker and their professional email (exact if known, otherwise the firm's standard pattern). Then write a personalized cold email (roughly 120-180 words) FROM the founder TO that partner: a specific subject line and a body that opens with why you're emailing THIS investor specifically, explains what the company does and its traction, states how much is being raised and the use of funds, and ends with a clear ask for a short call. Sign as the founder. No placeholders.\n\nReturn ONLY a JSON array of exactly " + n + " objects, each with keys: firm, focus, partner, role, email, emailConfidence ('known' or 'pattern-guess'), website, location, why, subject, body. Output nothing except the JSON array.";
   }
 
+  // Remember the last failure so we can tell the founder WHY, instead of a
+  // generic message. Reset at the start of every run.
+  var _lastErr = null;
+  var _lastRaw = "";
+
+  function diagnose() {
+    var base = "Couldn't generate the list this time \u2014 ";
+    if (!_lastErr && _lastRaw) {
+      return base + "the AI replied but not in the expected format. Tap Regenerate, or lower the number of investors.";
+    }
+    var msg = "";
+    try { msg = (_lastErr && (_lastErr.message || ("" + _lastErr))) || ""; } catch (e) {}
+    var m = msg.toLowerCase();
+    if (/no api key/.test(m)) return base + "connect your AI provider first (open AI settings).";
+    if (/base url required/.test(m)) return base + "your OpenAI-compatible provider needs a Base URL in AI settings.";
+    if (/failed to fetch|networkerror|load failed|cors|network/.test(m)) return base + "the request to your AI provider was blocked (network/CORS). Check the provider and Base URL in AI settings.";
+    if (/429|rate|quota|insufficient|billing/.test(m)) return base + "your AI provider is rate-limiting or out of quota \u2014 wait a moment or check billing, then retry.";
+    if (/401|403|unauthor|invalid api|invalid key|incorrect api/.test(m)) return base + "your API key was rejected. Re-enter it in AI settings.";
+    if (/404|model|not found|does not exist/.test(m)) return base + "that model name wasn't found. Check the model in AI settings (e.g. gpt-4o-mini).";
+    if (/choices|cannot read|undefined|reading '0'|properties/.test(m)) return base + "your AI provider rejected the request \u2014 usually an invalid key, an unknown model, or no quota. Verify your key and model in AI settings.";
+    if (msg) return base + "AI error: " + msg;
+    return base + "please try again, or add a little more detail about your business and raise.";
+  }
+
   function callAI(data, n, useJson) {
     var opts = useJson ? { json: true, temp: 0.6, maxTokens: 4000 } : { temp: 0.6, maxTokens: 4000 };
     return Promise.resolve(
       window.llmChat([{ role: "user", content: userPrompt(data, n) }], SYSTEM, opts)
     ).then(function (out) {
       try { console.log("[fundraise] raw AI output:", out); } catch (e) {}
+      _lastRaw = (typeof out === "string") ? out : (out ? JSON.stringify(out) : "");
       return parseList(out);
     }).catch(function (err) {
       try { console.warn("[fundraise] llmChat error:", err); } catch (e) {}
+      _lastErr = err;
       return null;
     });
   }
 
   function frRun() {
+    _lastErr = null; _lastRaw = "";
     var data = {
       company: val("frCompany"),
       offer: val("frOffer"),
@@ -242,7 +269,9 @@
       if (go) { go.disabled = false; go.textContent = "Regenerate \u2192"; }
     }).catch(function (err) {
       if (go) { go.disabled = false; go.textContent = "Find investors & draft emails \u2192"; }
-      setStatus("Couldn't generate the list this time \u2014 please try again, or add a little more detail about your business and raise.");
+      _lastErr = _lastErr || err;
+      setStatus(diagnose());
+      try { console.warn("[fundraise] run failed:", _lastErr || err, "| raw:", _lastRaw); } catch (e) {}
     });
   }
   window.frRun = frRun;
@@ -457,5 +486,5 @@
   } else {
     bindNav();
   }
-  try { console.log("[fundraise] module v3 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
+  try { console.log("[fundraise] module v4 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
 })();
