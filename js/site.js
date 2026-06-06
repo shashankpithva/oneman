@@ -1,4 +1,56 @@
 
+// ---------- boot / intro (animated terminal boot sequence) ----------
+(function(){
+  var boot=document.getElementById('boot');
+  if(!boot)return;
+  var body=document.getElementById('bootBody');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var seen=false;try{seen=sessionStorage.getItem('polsia_boot')==='1';}catch(e){}
+  function finish(){
+    boot.classList.add('done');
+    document.body.style.overflow='';
+    try{sessionStorage.setItem('polsia_boot','1');}catch(e){}
+    setTimeout(function(){if(boot&&boot.parentNode)boot.parentNode.removeChild(boot);},700);
+  }
+  // Skip the animation if already shown this session, motion is reduced, or markup is missing.
+  if(seen||reduce||!body){finish();return;}
+  document.body.style.overflow='hidden';
+  var STEPS=[
+    'initializing polsia core',
+    'waking planning \u00b7 engineering \u00b7 marketing \u00b7 ops agents',
+    'connecting to 8,742 live companies',
+    'deploying marketing campaign'
+  ];
+  var i=0;
+  function addLine(){
+    if(i>=STEPS.length){banner();return;}
+    var text=STEPS[i];i++;
+    var row=document.createElement('div');
+    row.className='boot-line cur';
+    var pfx=document.createElement('span');pfx.className='pfx';pfx.textContent='polsia:~$ ';
+    var span=document.createElement('span');
+    row.appendChild(pfx);row.appendChild(span);
+    body.appendChild(row);
+    var p=0;
+    (function type(){
+      if(p<=text.length){span.textContent=text.slice(0,p);p++;setTimeout(type,13);}
+      else{
+        row.classList.remove('cur');
+        var ok=document.createElement('span');ok.className='ok';ok.textContent='  \u2713';row.appendChild(ok);
+        setTimeout(addLine,150);
+      }
+    })();
+  }
+  function banner(){
+    var row=document.createElement('div');
+    row.className='boot-line welcome';
+    row.innerHTML='<span class="ok">\u2713</span> welcome to <b>Polsia</b>';
+    body.appendChild(row);
+    setTimeout(finish,640);
+  }
+  setTimeout(addLine,260);
+})();
+
 // nav shadow on scroll
 const nav=document.getElementById('nav');
 addEventListener('scroll',()=>{nav.classList.toggle('scrolled',scrollY>20)});
