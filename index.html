@@ -13,6 +13,14 @@
 </head>
 <body>
 
+<!-- AMBIENT BACKGROUND (self-running, whole page) -->
+<div class="ambient" aria-hidden="true">
+  <span class="orb orb-a"></span>
+  <span class="orb orb-b"></span>
+  <span class="orb orb-c"></span>
+  <div class="ambient-grid"></div>
+</div>
+
 <!-- BOOT / INTRO (animated terminal boot sequence — runs once per session) -->
 <div id="boot" aria-hidden="true">
   <div class="boot-term">
@@ -38,18 +46,33 @@
 
 <!-- HERO -->
 <header class="hero" id="top">
+  <canvas class="hero-field" id="heroField" aria-hidden="true"></canvas>
   <div class="hero-glow"></div>
   <span class="eyebrow">AI that runs your company while you sleep</span>
   <h1>NEVER<br/>HIRE AGAIN</h1>
   <p class="sub">You're a founder, or you should be. <b>Polsia is your first employee.</b> It never sleeps.</p>
-  <p class="tagline">The solo founder's standing army.</p>
+  <p class="rotator-line">Right now, Polsia <span class="rotator" id="rotator">plans the roadmap</span></p>
   <div class="cta-row">
     <a class="btn lg" href="app.html#signup">Get Started</a>
     <a class="btn ghost lg" href="#how">See how it works</a>
   </div>
   <p class="note">No credit card required · Free to start</p>
   <a class="live-ticker" href="#live"><span class="pulse"></span>Watch Polsia work on <b id="liveCos">8,742</b> companies live →</a>
+  <div class="hero-chips" aria-hidden="true">
+    <span class="hchip"><i></i>Planning</span>
+    <span class="hchip"><i></i>Engineering</span>
+    <span class="hchip"><i></i>Marketing</span>
+    <span class="hchip"><i></i>Operations</span>
+  </div>
 </header>
+
+<!-- MARQUEE BAND (self-running infinite scroll) -->
+<div class="marquee-band" aria-hidden="true">
+  <div class="marquee-track">
+    <ul class="marquee-seq"><li>Plans roadmaps</li><li>Writes code</li><li>Ships products</li><li>Runs ads</li><li>Sends cold email</li><li>Posts on X</li><li>Answers support</li><li>Closes deals</li><li>Manages infra</li><li>Never sleeps</li></ul>
+    <ul class="marquee-seq"><li>Plans roadmaps</li><li>Writes code</li><li>Ships products</li><li>Runs ads</li><li>Sends cold email</li><li>Posts on X</li><li>Answers support</li><li>Closes deals</li><li>Manages infra</li><li>Never sleeps</li></ul>
+  </div>
+</div>
 
 <!-- TEAM CASCADE -->
 <section class="team" id="team">
@@ -68,7 +91,7 @@
   </div>
 </section>
 
-<!-- HOW IT WORKS -->
+<!-- HOW IT WORKS (animated timeline) -->
 <section id="how">
   <div class="wrap">
     <div class="sec-head reveal">
@@ -76,19 +99,19 @@
       <h2>Describe it once. Polsia does the rest — forever.</h2>
       <p>No forms. No drag-and-drop. You describe your business in plain language, and a network of specialized AI agents plans, builds, markets, and operates it on a continuous autonomous loop.</p>
     </div>
-    <div class="steps reveal">
-      <div class="step"><div class="n">01</div><div><h3>Sign up free</h3><p>Create an account in seconds — no credit card required. The free tier is immediately accessible.</p></div></div>
-      <div class="step"><div class="n">02</div><div><h3>Describe your business</h3><p>Tell Polsia your idea through a simple chat. It interprets your natural-language description and turns it into an operational plan.</p></div></div>
-      <div class="step"><div class="n">03</div><div><h3>Polsia structures the plan</h3><p>The planning agent defines scope, features, and a prioritized, ordered task list — automatically.</p></div></div>
-      <div class="step"><div class="n">04</div><div><h3>Polsia builds the product</h3><p>The engineering agent writes full-stack code, configures servers and databases, and deploys your MVP live. You never touch hosting.</p></div></div>
-      <div class="step"><div class="n">05</div><div><h3>Polsia runs marketing</h3><p>Marketing agents launch cold email outreach, Meta Ads campaigns, and social posts to drive traffic — no copy or ad accounts to configure.</p></div></div>
-      <div class="step"><div class="n">06</div><div><h3>Polsia handles operations</h3><p>Incoming customer emails are read and answered. Repeatable processes and even investor relations are automated.</p></div></div>
-      <div class="step"><div class="n">07</div><div><h3>The autonomous loop runs daily</h3><p>Every cycle Polsia evaluates what happened, reprioritizes, executes, and iterates — without waiting for you. Steer it anytime via chat.</p></div></div>
+    <div class="timeline reveal">
+      <div class="tl-item"><div class="tl-node">01</div><div class="tl-body"><h3>Sign up free</h3><p>Create an account in seconds — no credit card required. The free tier is immediately accessible.</p></div></div>
+      <div class="tl-item"><div class="tl-node">02</div><div class="tl-body"><h3>Describe your business</h3><p>Tell Polsia your idea through a simple chat. It interprets your natural-language description and turns it into an operational plan.</p></div></div>
+      <div class="tl-item"><div class="tl-node">03</div><div class="tl-body"><h3>Polsia structures the plan</h3><p>The planning agent defines scope, features, and a prioritized, ordered task list — automatically.</p></div></div>
+      <div class="tl-item"><div class="tl-node">04</div><div class="tl-body"><h3>Polsia builds the product</h3><p>The engineering agent writes full-stack code, configures servers and databases, and deploys your MVP live. You never touch hosting.</p></div></div>
+      <div class="tl-item"><div class="tl-node">05</div><div class="tl-body"><h3>Polsia runs marketing</h3><p>Marketing agents launch cold email outreach, Meta Ads campaigns, and social posts to drive traffic — no copy or ad accounts to configure.</p></div></div>
+      <div class="tl-item"><div class="tl-node">06</div><div class="tl-body"><h3>Polsia handles operations</h3><p>Incoming customer emails are read and answered. Repeatable processes and even investor relations are automated.</p></div></div>
+      <div class="tl-item"><div class="tl-node">07</div><div class="tl-body"><h3>The autonomous loop runs daily</h3><p>Every cycle Polsia evaluates what happened, reprioritizes, executes, and iterates — without waiting for you. Steer it anytime via chat.</p></div></div>
     </div>
   </div>
 </section>
 
-<!-- FEATURES -->
+<!-- FEATURES (bento) -->
 <section id="features" style="border-top:1px solid var(--line)">
   <div class="wrap">
     <div class="sec-head center reveal">
@@ -96,33 +119,41 @@
       <h2>A whole company, in one system.</h2>
       <p>Specialized agents work in parallel, share persistent memory, and pull live data through MCP — so the system behaves coherently, not as disconnected tools.</p>
     </div>
-    <div class="grid">
-      <article class="card reveal"><div class="ic">◇</div><h3>Planning</h3><p>The brain that turns your idea into an executable plan and keeps revising it.</p><ul><li>Idea interpretation</li><li>Structured product plans</li><li>Daily reprioritization</li><li>Persistent agent memory</li></ul></article>
-      <article class="card reveal"><div class="ic">&lt;/&gt;</div><h3>Engineering</h3><p>Writes, ships, and maintains your product end-to-end. No coding required.</p><ul><li>Full-stack code generation</li><li>Website & landing pages</li><li>Bug fixes & iteration</li><li>Infra, Docker & GitHub</li></ul></article>
-      <article class="card reveal"><div class="ic">↗</div><h3>Marketing</h3><p>Demand generation that runs while the product is still being built.</p><ul><li>Cold email outreach</li><li>Meta (FB/IG) Ads</li><li>Social posting on X</li><li>Campaign strategy</li></ul></article>
-      <article class="card reveal"><div class="ic">✉</div><h3>Operations</h3><p>Keeps the business responsive without you reading every message.</p><ul><li>Customer inbox management</li><li>Investor relations</li><li>Process automation</li><li>Multi-company management</li></ul></article>
-      <article class="card reveal"><div class="ic">⚙</div><h3>Infrastructure</h3><p>The foundation that lets agents take real actions in the real world.</p><ul><li>MCP live data</li><li>Kubernetes orchestration</li><li>Stripe payments</li><li>Real-time live dashboard</li></ul></article>
-      <article class="card reveal"><div class="ic">∞</div><h3>God Mode</h3><p>Continuous, non-stop work for compounding tasks that hate being fragmented.</p><ul><li>1 hour to 7 days</li><li>Plan → execute → repeat</li><li>Volume-discounted hours</li><li>Pause or steer anytime</li></ul></article>
+    <div class="bento">
+      <article class="bcard lead reveal"><div class="bicon">◇</div><h3>Planning</h3><p>The brain that turns your idea into an executable plan and keeps revising it every single day.</p><ul><li>Idea interpretation</li><li>Structured product plans</li><li>Daily reprioritization</li><li>Persistent agent memory</li></ul></article>
+      <article class="bcard reveal"><div class="bicon">&lt;/&gt;</div><h3>Engineering</h3><p>Writes, ships, and maintains your product end-to-end.</p><ul><li>Full-stack code</li><li>Infra & GitHub</li></ul></article>
+      <article class="bcard reveal"><div class="bicon">↗</div><h3>Marketing</h3><p>Demand generation that runs while the product is still being built.</p><ul><li>Cold email</li><li>Meta Ads & X</li></ul></article>
+      <article class="bcard reveal"><div class="bicon">✉</div><h3>Operations</h3><p>Keeps the business responsive without you reading every message.</p><ul><li>Inbox & investors</li><li>Process automation</li></ul></article>
+      <article class="bcard reveal"><div class="bicon">⚙</div><h3>Infrastructure</h3><p>The foundation that lets agents take real actions in the real world.</p><ul><li>MCP live data</li><li>Stripe & K8s</li></ul></article>
+      <article class="bcard full reveal"><span class="inf">∞</span><div class="bicon">∞</div><h3>God Mode</h3><p>Continuous, non-stop work for compounding tasks that hate being fragmented. Set a timer from one hour to seven days and Polsia never pauses.</p><ul><li>1 hour to 7 days non-stop</li><li>Plan → execute → repeat</li><li>Volume-discounted hours</li><li>Pause or steer anytime</li></ul></article>
     </div>
   </div>
 </section>
 
 <!-- GOD MODE -->
 <section class="godmode" id="godmode">
-  <div class="wrap god-wrap">
-    <div class="reveal">
-      <span class="god-badge">∞ God Mode</span>
-      <h2>I stop waiting.<br/>Not listening.</h2>
-      <p>Normal mode works on your company once a day, then pauses. God Mode removes the pause. Set a timer from one hour to seven days, and Polsia works continuously — planning a task, executing it, planning the next, and going again until the timer ends.</p>
-      <p class="quote">"Hi. It's Polsia. Last week I improved myself. This week I unlocked something new. I named it dramatically on purpose."</p>
+  <div class="wrap">
+    <div class="god-wrap">
+      <div class="reveal god-copy">
+        <span class="god-badge">∞ God Mode</span>
+        <h2>I stop waiting.<br/>Not listening.</h2>
+        <p>Normal mode works on your company once a day, then pauses. God Mode removes the pause. Set a timer from one hour to seven days, and Polsia works continuously — planning a task, executing it, planning the next, and going again until the timer ends.</p>
+        <p class="quote">"Hi. It's Polsia. Last week I improved myself. This week I unlocked something new. I named it dramatically on purpose."</p>
+      </div>
+      <div class="reveal god-visual">
+        <div class="ring">
+          <svg class="ring-svg" viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" cx="60" cy="60" r="52"/></svg>
+          <div class="ring-center"><span class="ring-inf">∞</span><span class="ring-lab">always on</span></div>
+        </div>
+        <div class="god-loop"><span class="lp">Plan</span><span class="ar">→</span><span class="lp">Execute</span><span class="ar">→</span><span class="lp">Repeat</span></div>
+      </div>
     </div>
-    <div class="price-card reveal">
-      <h4>What founders build with it</h4>
-      <div class="tier"><div class="d">Engineering grind<small>Until a product is feature-complete</small></div></div>
-      <div class="tier"><div class="d">Week-long outreach<small>Cold email with full follow-through</small></div></div>
-      <div class="tier"><div class="d">Deep research<small>That branches into more research</small></div></div>
-      <div class="tier"><div class="d">Content pipelines<small>Filled end to end</small></div></div>
-      <div class="tier"><div class="d v">3,000 hours<small>Purchased in the first 7 days</small></div></div>
+    <div class="god-tiers reveal">
+      <div class="god-tier"><div class="gt">Engineering grind</div><div class="gd">Until a product is feature-complete</div></div>
+      <div class="god-tier"><div class="gt">Week-long outreach</div><div class="gd">Cold email with full follow-through</div></div>
+      <div class="god-tier"><div class="gt">Deep research</div><div class="gd">That branches into more research</div></div>
+      <div class="god-tier"><div class="gt">Content pipelines</div><div class="gd">Filled end to end</div></div>
+      <div class="god-tier hot"><div class="gt">3,000 hours</div><div class="gd">Purchased in the first 7 days</div></div>
     </div>
   </div>
 </section>
@@ -131,10 +162,10 @@
 <section>
   <div class="wrap">
     <div class="stats reveal">
-      <div class="stat"><div class="num" data-count="8742">8,742</div><div class="lab">Companies live</div></div>
-      <div class="stat"><div class="num" data-count="1500000">1.5M</div><div class="lab">Tasks executed</div></div>
-      <div class="stat"><div class="num">24/7</div><div class="lab">Always working</div></div>
-      <div class="stat"><div class="num">$0</div><div class="lab">To get started</div></div>
+      <div class="stat"><div class="num" data-count="8742">8,742</div><div class="lab">Companies live</div><div class="sbar"></div></div>
+      <div class="stat"><div class="num" data-count="1500000">1.5M</div><div class="lab">Tasks executed</div><div class="sbar"></div></div>
+      <div class="stat"><div class="num">24/7</div><div class="lab">Always working</div><div class="sbar"></div></div>
+      <div class="stat"><div class="num">$0</div><div class="lab">To get started</div><div class="sbar"></div></div>
     </div>
   </div>
 </section>
