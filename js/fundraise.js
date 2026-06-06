@@ -29,40 +29,47 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
-  function site() { try { return (window.S && S.site && typeof S.site === "object") ? S.site : {}; } catch (e) { return {}; } }
+  // app.js stores state in a lexically-scoped `let S`, which is NOT exposed on
+  // window. Read the bare binding (typeof-guarded) so we can pull the founder's
+  // real company profile. The website builder keeps offer/audience/email under
+  // S.site.answers, so look there too.
+  function ST() { try { if (typeof S !== "undefined" && S) return S; } catch (e) {} return (window.S || {}); }
+  function site() { try { var s = ST(); return (s.site && typeof s.site === "object") ? s.site : {}; } catch (e) { return {}; } }
+  function answers() { try { var st = site(); return (st.answers && typeof st.answers === "object") ? st.answers : st; } catch (e) { return {}; } }
 
   function companyName() {
     try {
-      var c = window.S && S.company;
+      var c = ST().company;
       if (c) { if (typeof c === "string") return c; return c.name || c.company || c.title || ""; }
-      if (site().company) return site().company;
+      if (answers().company) return answers().company;
       return "";
     } catch (e) { return ""; }
   }
   function ideaText() {
     try {
-      var s = window.S || {};
+      var s = ST();
+      if (answers().offer) return answers().offer;
       if (typeof s.idea === "string" && s.idea) return s.idea;
       if (s.idea && s.idea.text) return s.idea.text;
       if (s.company && typeof s.company === "object" && (s.company.idea || s.company.desc)) return s.company.idea || s.company.desc;
-      if (site().offer) return site().offer;
       return "";
     } catch (e) { return ""; }
   }
-  function audienceText() { try { return site().audience || ""; } catch (e) { return ""; } }
+  function audienceText() { try { return answers().audience || ""; } catch (e) { return ""; } }
   function founderName() {
     try {
-      var a = window.S && S.account;
+      var a = ST().account;
       if (a && typeof a === "object") return a.name || a.fullName || (a.email ? a.email.split("@")[0] : "");
-      if (typeof a === "string") return a;
+      if (typeof a === "string") return a.indexOf("@") >= 0 ? a.split("@")[0] : a;
       if (window.PB && PB.user && PB.user.email) return PB.user.email.split("@")[0];
       return "";
     } catch (e) { return ""; }
   }
   function founderEmail() {
     try {
-      if (site().email) return site().email;
-      var a = window.S && S.account;
+      if (answers().email) return answers().email;
+      var a = ST().account;
+      if (typeof a === "string" && a.indexOf("@") >= 0) return a;
       if (a && typeof a === "object" && a.email) return a.email;
       if (window.PB && PB.user && PB.user.email) return PB.user.email;
       return "";
@@ -241,8 +248,8 @@
   window.frRun = frRun;
 
   function pushToOutbox(list, data) {
-    if (!window.S) window.S = {};
-    if (!Array.isArray(S.outbox)) S.outbox = [];
+    var st = ST();
+    if (!Array.isArray(st.outbox)) st.outbox = [];
     // clear previous unsent fundraise drafts so re-runs don't pile up
     S.outbox = S.outbox.filter(function (o) { return !(o && o.source === "fundraise" && o.status === "pending"); });
     var added = [];
@@ -322,6 +329,114 @@
     say("Drafted " + added.length + " personalized investor emails and put them in your Outbox for approval:\n\n" + lines.join("\n") +
       "\n\nVerify each email address before sending.");
   }
+  /* --------- Outbox: show + edit each email's recipient address --------- */
+  // Individual emails (e.g. investor drafts) carry their own to_email; the
+  // built-in Outbox UI never showed or edited it, so we add an editable "To".
+  function isIndividualEmail(o) { return !!(o && o.type === "email" && (o.to_email || o.to)); }
+  function recipOf(o) { return ((o && (o.to_email || o.to)) || "").toString(); }
+
+  function outboxItemsFor(cid) {
+    var isPage = (cid === "obList2");
+    var box = (ST().outbox || []);
+    return box.filter(function (o) {
+      return o && o.status !== "skipped" && (isPage || (o.status === "pending" && !o.attempted));
+    });
+  }
+
+  function injectToRow(card, item) {
+    if (!card || card.querySelector(".fr-to-row")) return;
+    var inner = card.querySelector(":scope > div") || card;
+    var firstBtn = inner.querySelector("button.btn");
+    var act = firstBtn ? firstBtn.parentElement : null;
+
+    var wrap = document.createElement("div");
+    wrap.className = "fr-to-row";
+    wrap.style.cssText = "display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 10px;font-size:12px";
+
+    var lab = document.createElement("span");
+    lab.textContent = "To";
+    lab.style.cssText = "color:#9b958a;font-weight:600";
+
+    var inp = document.createElement("input");
+    inp.type = "email";
+    inp.value = recipOf(item);
+    inp.placeholder = "name@firm.com";
+    inp.style.cssText = "flex:1;min-width:170px;padding:6px 9px;border:1px solid var(--line,#e3ddcf);border-radius:8px;font-size:12px;font-family:inherit;background:var(--panel,#fff);color:var(--fg,#1c1a16)";
+    inp.onclick = function (e) { e.stopPropagation(); };
+    inp.onchange = function () {
+      var v = inp.value.trim();
+      item.to = v; item.to_email = v;
+      try { if (window.save) save(); } catch (e) {}
+    };
+    inp.onkeydown = function (e) { if (e.key === "Enter") inp.blur(); };
+
+    wrap.appendChild(lab);
+    wrap.appendChild(inp);
+
+    if (item.toName || item.firm || (item.emailConfidence && item.emailConfidence !== "known")) {
+      var hint = document.createElement("span");
+      hint.style.cssText = "color:#9b958a;font-size:11px";
+      hint.textContent = (item.toName || "") + (item.firm ? (" \u00b7 " + item.firm) : "") +
+        ((item.emailConfidence && item.emailConfidence !== "known") ? " \u00b7 verify before sending" : "");
+      wrap.appendChild(hint);
+    }
+
+    if (act && act.parentNode === inner) inner.insertBefore(wrap, act);
+    else inner.appendChild(wrap);
+  }
+
+  function enhanceOutboxDOM() {
+    ["obList", "obList2"].forEach(function (cid) {
+      var c = g(cid); if (!c) return;
+      var cards = c.querySelectorAll(".art");
+      var items = outboxItemsFor(cid);
+      var byIndex = (cards.length === items.length);
+      var pool = items.slice();
+      for (var i = 0; i < cards.length; i++) {
+        var item = null;
+        if (byIndex) { item = items[i]; }
+        else {
+          var t = cards[i].querySelector(".atitle");
+          var title = t ? t.textContent : "";
+          for (var j = 0; j < pool.length; j++) {
+            if (pool[j] && pool[j].title === title) { item = pool[j]; pool.splice(j, 1); break; }
+          }
+        }
+        if (item && isIndividualEmail(item)) injectToRow(cards[i], item);
+      }
+    });
+  }
+
+  var _origRenderOutbox = window.renderOutbox;
+  window.renderOutbox = function () {
+    var r;
+    if (typeof _origRenderOutbox === "function") r = _origRenderOutbox.apply(this, arguments);
+    try { enhanceOutboxDOM(); } catch (e) { try { console.warn("[fundraise] outbox enhance failed:", e); } catch (e2) {} }
+    return r;
+  };
+
+  // When an individual email is approved, send it to ITS OWN recipient address
+  // (the investor), not the bulk CSV list used by regular campaign emails.
+  var _origApproveItem = window.approveItem;
+  window.approveItem = function (id) {
+    try {
+      var o = (ST().outbox || []).find(function (x) { return x && x.id === id; });
+      if (isIndividualEmail(o)) {
+        var addr = recipOf(o).trim();
+        if (!addr) { notify("Add a recipient email address first."); return; }
+        if (typeof window.emailReady === "function" && !window.emailReady()) {
+          notify("Set up email sending first.");
+          if (typeof window.openEmail === "function") openEmail();
+          return;
+        }
+        if (!window.confirm("Send this email to " + addr + " now?")) return;
+        o.recipients = [{ email: addr, name: o.toName || "", status: "pending" }];
+        if (typeof window.sendCampaign === "function") { window.sendCampaign(o); return; }
+      }
+    } catch (e) { try { console.warn("[fundraise] approveItem wrap failed:", e); } catch (e2) {} }
+    if (typeof _origApproveItem === "function") return _origApproveItem.apply(this, arguments);
+  };
+
   // Belt-and-suspenders: make sure switching to any other tab clears the
   // fundraise view, and confirm the page hooks are wired on load.
   function bindNav() {
@@ -342,5 +457,5 @@
   } else {
     bindNav();
   }
-  try { console.log("[fundraise] module v2 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
+  try { console.log("[fundraise] module v3 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
 })();
