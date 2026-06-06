@@ -287,7 +287,7 @@
         <div class="agent"><div class="ah"><span class="name"><svg class="pi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 7 5h10l2 7v6a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M5 12h4l1 2h4l1-2h4"/></svg>Operations</span><span class="badge idle" id="b-ops">Idle</span></div><div class="alog" id="log-ops"></div></div>
       </div>
       <div class="board"><div class="bhead"><h3>Running now</h3><div style="display:flex;gap:8px;align-items:center"><button class="btn ghost sm" onclick="openWorkPage()">Task board &amp; deliverables ↗</button><button class="btn sm" id="runBtnDash" onclick="toggleRun()">Run agents</button></div></div><div id="runList"></div></div>
-      <div class="board" style="margin-top:26px"><div class="bhead"><h3>Outbox · needs your approval</h3><button class="btn ghost sm" onclick="openOutboxPage()">Manage in Outbox</button></div><div class="alt" id="recipCount" style="margin:0 0 10px">No recipient list loaded.</div><input id="recipFile" type="file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="onSheet(event)"/><div id="obList"></div></div>
+      <details class="board ob-coll" id="obDash" open style="margin-top:26px"><summary class="bhead ob-sum"><h3>Outbox · needs your approval</h3><span class="ob-sum-tools"><button class="btn ghost sm" onclick="event.preventDefault();event.stopPropagation();openOutboxPage()">Manage in Outbox</button><svg class="pi ob-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></summary><div class="alt" id="recipCount" style="margin:0 0 10px">No recipient list loaded.</div><input id="recipFile" type="file" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="onSheet(event)"/><div id="obList"></div></details>
     </div>
     <div class="app-right">
       <div class="god" id="godBox" style="display:none">
@@ -568,5 +568,6 @@
 <script src="js/overnight.js?v=1"></script>
 <script src="js/godmode.js?v=2"></script>
 <script src="js/serials.js?v=2"></script>
+<script src="js/steer.js?v=1"></script>
 </body>
 </html>
