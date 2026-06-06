@@ -322,4 +322,25 @@
     say("Drafted " + added.length + " personalized investor emails and put them in your Outbox for approval:\n\n" + lines.join("\n") +
       "\n\nVerify each email address before sending.");
   }
+  // Belt-and-suspenders: make sure switching to any other tab clears the
+  // fundraise view, and confirm the page hooks are wired on load.
+  function bindNav() {
+    ["enterDash", "openOutboxPage", "openLivePage", "openWorkPage"].forEach(function (fn) {
+      var orig = window[fn];
+      if (typeof orig === "function" && !orig.__frWrapped) {
+        var wrapped = function () {
+          try { var v = g("app-fundraise"); if (v) v.classList.remove("active"); } catch (e) {}
+          return orig.apply(this, arguments);
+        };
+        wrapped.__frWrapped = true;
+        window[fn] = wrapped;
+      }
+    });
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindNav);
+  } else {
+    bindNav();
+  }
+  try { console.log("[fundraise] module v2 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
 })();
