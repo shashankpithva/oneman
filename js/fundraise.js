@@ -133,30 +133,104 @@
     if (obj) { try { return JSON.parse(obj[0]); } catch (e3) {} }
     return null;
   }
-  function looksLikeInvestor(o) {
-    return o && typeof o === "object" && (o.firm || o.partner || o.body || o.subject || o.email);
+  /* ---- normalize one investor object across many possible key names ----- */
+  function normItem(o) {
+    if (!o || typeof o !== "object") return null;
+    var map = {};
+    Object.keys(o).forEach(function (k) { map[k.toLowerCase().replace(/[^a-z0-9]/g, "")] = o[k]; });
+    function get(aliases) {
+      for (var i = 0; i < aliases.length; i++) {
+        var v = map[aliases[i]];
+        if (v != null && v !== "" && typeof v !== "object") return v;
+      }
+      return "";
+    }
+    var firm = get(["firm", "firmname", "fund", "fundname", "company", "companyname", "investor", "investorname", "organization", "org", "name"]);
+    var partner = get(["partner", "partnername", "contact", "contactname", "contactperson", "person", "decisionmaker", "lead", "gp", "principal", "investorcontact"]);
+    var role = get(["role", "position", "jobtitle", "designation"]);
+    var email = get(["email", "emailaddress", "contactemail", "partneremail", "toemail", "to", "recipient"]);
+    var subject = get(["subject", "subjectline", "emailsubject", "title"]);
+    var body = get(["body", "emailbody", "message", "content", "draft", "bodytext", "emailtext", "emailcontent", "text"]);
+    var website = get(["website", "url", "site", "web", "link", "homepage"]);
+    var location = get(["location", "geo", "region", "city", "hq", "headquarters", "country"]);
+    var why = get(["why", "reason", "rationale", "fit", "whyrelevant", "relevance", "whythisinvestor"]);
+    var conf = get(["emailconfidence", "confidence", "emailconf"]);
+    if (!firm && !partner && !body && !subject && !email) return null;
+    return {
+      firm: ("" + firm).trim(),
+      partner: ("" + partner).trim(),
+      role: ("" + role).trim(),
+      email: ("" + email).trim(),
+      subject: ("" + subject).trim(),
+      body: ("" + body).trim(),
+      website: ("" + website).trim(),
+      location: ("" + location).trim(),
+      why: ("" + why).trim(),
+      emailConfidence: ("" + conf).trim()
+    };
   }
-  function coerceArray(data) {
+
+  function normList(arr) {
+    if (!Array.isArray(arr)) return null;
+    var out = [];
+    for (var i = 0; i < arr.length; i++) {
+      var n = normItem(arr[i]);
+      if (n && (n.firm || n.partner || n.body)) out.push(n);
+    }
+    return out.length ? out : null;
+  }
+
+  function findArray(data) {
     if (!data) return null;
-    if (Array.isArray(data)) return data.filter(looksLikeInvestor);
+    if (Array.isArray(data)) return data;
     if (typeof data === "object") {
-      if (looksLikeInvestor(data) && (data.firm || data.partner)) return [data];
       var keys = Object.keys(data);
       for (var i = 0; i < keys.length; i++) {
-        if (Array.isArray(data[keys[i]])) {
-          var a = data[keys[i]].filter(looksLikeInvestor);
-          if (a.length) return a;
-        }
+        if (Array.isArray(data[keys[i]])) return data[keys[i]];
       }
-      var vals = keys.map(function (k) { return data[k]; }).filter(looksLikeInvestor);
-      if (vals.length) return vals;
+      var vals = keys.map(function (k) { return data[k]; });
+      if (vals.length && vals.every(function (v) { return v && typeof v === "object" && !Array.isArray(v); })) return vals;
+      return [data];
     }
     return null;
   }
+
+  // Recover complete {...} objects from raw text even if the JSON array was
+  // truncated (e.g. the model hit the token limit mid-list). Uses char codes
+  // (34=quote, 92=backslash, 123={, 125=}) to stay quoting-agnostic.
+  function salvageObjects(s) {
+    if (typeof s !== "string") return [];
+    var res = [], depth = 0, start = -1, inStr = false, escd = false;
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
+      if (inStr) {
+        if (escd) { escd = false; }
+        else if (c === 92) { escd = true; }
+        else if (c === 34) { inStr = false; }
+        continue;
+      }
+      if (c === 34) { inStr = true; continue; }
+      if (c === 123) { if (depth === 0) start = i; depth++; }
+      else if (c === 125) {
+        if (depth > 0) depth--;
+        if (depth === 0 && start >= 0) {
+          try { res.push(JSON.parse(s.slice(start, i + 1))); } catch (e) {}
+          start = -1;
+        }
+      }
+    }
+    return res;
+  }
+
   function parseList(out) {
     var data = (typeof out === "string") ? tryParse(out) : out;
-    var arr = coerceArray(data);
-    return (arr && arr.length) ? arr : null;
+    var norm = normList(findArray(data));
+    if (norm) return norm;
+    if (typeof out === "string") {
+      var salvaged = normList(salvageObjects(out));
+      if (salvaged) return salvaged;
+    }
+    return null;
   }
 
   /* ------------------------------ the run ---------------------------- */
@@ -183,7 +257,7 @@
     return "Here is the founder's company and raise:\n\n" + buildBrief(data) +
       "\n\nIdentify the " + n + " MOST relevant investors for THIS sector and stage" +
       (data.geo ? " with a focus on or presence in " + data.geo : "") +
-      ". For each, pick one specific relevant partner/decision-maker and their professional email (exact if known, otherwise the firm's standard pattern). Then write a personalized cold email (roughly 120-180 words) FROM the founder TO that partner: a specific subject line and a body that opens with why you're emailing THIS investor specifically, explains what the company does and its traction, states how much is being raised and the use of funds, and ends with a clear ask for a short call. Sign as the founder. No placeholders.\n\nReturn ONLY a JSON array of exactly " + n + " objects, each with keys: firm, focus, partner, role, email, emailConfidence ('known' or 'pattern-guess'), website, location, why, subject, body. Output nothing except the JSON array.";
+      ". For each, pick one specific relevant partner/decision-maker and their professional email (exact if known, otherwise the firm's standard pattern). Then write a personalized cold email (roughly 120-180 words) FROM the founder TO that partner: a specific subject line and a body that opens with why you're emailing THIS investor specifically, explains what the company does and its traction, states how much is being raised and the use of funds, and ends with a clear ask for a short call. Sign as the founder. No placeholders.\n\nReturn ONLY a JSON object of the form {\"investors\": [ ... ]}, where investors is an array of exactly " + n + " objects. Each object must use EXACTLY these keys: firm, focus, partner, role, email, emailConfidence ('known' or 'pattern-guess'), website, location, why, subject, body. Output nothing except that JSON object.";
   }
 
   // Remember the last failure so we can tell the founder WHY, instead of a
@@ -193,12 +267,10 @@
 
   function diagnose() {
     var base = "Couldn't generate the list this time \u2014 ";
-    if (!_lastErr && _lastRaw) {
-      return base + "the AI replied but not in the expected format. Tap Regenerate, or lower the number of investors.";
-    }
     var msg = "";
     try { msg = (_lastErr && (_lastErr.message || ("" + _lastErr))) || ""; } catch (e) {}
     var m = msg.toLowerCase();
+    if (/no_parse/.test(m)) return base + "the AI replied, but its answer couldn't be read as an investor list. Tap Regenerate, lower the investor count, or check the raw reply in the browser console.";
     if (/no api key/.test(m)) return base + "connect your AI provider first (open AI settings).";
     if (/base url required/.test(m)) return base + "your OpenAI-compatible provider needs a Base URL in AI settings.";
     if (/failed to fetch|networkerror|load failed|cors|network/.test(m)) return base + "the request to your AI provider was blocked (network/CORS). Check the provider and Base URL in AI settings.";
@@ -211,7 +283,7 @@
   }
 
   function callAI(data, n, useJson) {
-    var opts = useJson ? { json: true, temp: 0.6, maxTokens: 4000 } : { temp: 0.6, maxTokens: 4000 };
+    var opts = useJson ? { json: true, temp: 0.5, maxTokens: 8000 } : { temp: 0.5, maxTokens: 8000 };
     return Promise.resolve(
       window.llmChat([{ role: "user", content: userPrompt(data, n) }], SYSTEM, opts)
     ).then(function (out) {
@@ -486,5 +558,5 @@
   } else {
     bindNav();
   }
-  try { console.log("[fundraise] module v4 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
+  try { console.log("[fundraise] module v5 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
 })();
