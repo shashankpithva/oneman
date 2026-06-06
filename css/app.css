@@ -582,3 +582,15 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
 .mi .pi{width:16px;height:16px}
 .chat-input button .pi{width:18px;height:18px;vertical-align:middle}
 button .pi{vertical-align:-0.2em}
+
+
+/* ===== req#25: creative wordmark + company name + collapsible outbox ===== */
+.brand{position:relative;letter-spacing:-.04em}
+.brand::before{content:"P";display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:9px;background:linear-gradient(135deg,var(--accent),#e0915f);color:#fff;font-weight:800;font-size:.6em;line-height:1;box-shadow:0 4px 12px -4px rgba(177,77,43,.55);transform:rotate(-4deg)}
+#compName{background:linear-gradient(90deg,var(--accent),var(--fg));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-weight:700;letter-spacing:.01em}
+.ob-sum{cursor:pointer;list-style:none}
+.ob-sum::-webkit-details-marker{display:none}
+.ob-sum::marker{content:""}
+.ob-sum-tools{display:flex;align-items:center;gap:10px}
+.ob-caret{width:18px;height:18px;color:var(--muted);transition:transform .25s ease;flex:none}
+.ob-coll[open] .ob-caret{transform:rotate(180deg)}
