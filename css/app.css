@@ -594,3 +594,42 @@ button .pi{vertical-align:-0.2em}
 .ob-sum-tools{display:flex;align-items:center;gap:10px}
 .ob-caret{width:18px;height:18px;color:var(--muted);transition:transform .25s ease;flex:none}
 .ob-coll[open] .ob-caret{transform:rotate(180deg)}
+
+
+/* ===== req#26: phone-friendly layout (mobile-only; desktop unchanged) ===== */
+@media(max-width:768px){
+  .appbar{padding:11px 16px;gap:10px}
+  .appbar .left{gap:10px;min-width:0}
+  .appbar .right{gap:8px;width:100%;justify-content:space-between}
+  .tabs{flex:1 1 auto;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none}
+  .company-pill{max-width:52vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+}
+@media(max-width:600px){
+  section{padding:64px 16px}
+  .app-left{padding:22px 16px}
+  .app-right{padding:22px 16px}
+  .board{padding:20px 16px;border-radius:16px}
+  .board+.board{margin-top:20px}
+  .modal{padding:24px 20px;border-radius:18px;max-height:92vh}
+  .modal.wide{max-width:100%}
+  .modal h3{font-size:22px}
+  .mrow{gap:12px;margin-bottom:24px}
+  .metric{padding:18px 16px 18px 19px}
+  .metric .v{font-size:26px}
+  .god .timer{font-size:30px}
+  .task:hover,.art:hover{transform:none}
+  .art-actions{flex-wrap:wrap}
+  .art-actions .btn{flex:1 1 auto;min-width:140px}
+  .msg{max-width:94%}
+  .ob{padding:84px 16px 32px}
+  .ob-chat{max-height:46vh}
+  .toast{font-size:13px;padding:11px 18px}
+}
+@media(max-width:420px){
+  .appbar .brand{font-size:18px}
+  .tab{padding:8px 13px;font-size:12.5px}
+  .btn.sm{padding:7px 12px;font-size:12px}
+  .metric .v{font-size:23px}
+}
