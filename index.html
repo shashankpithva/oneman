@@ -9,6 +9,14 @@
 </head>
 <body>
 
+<!-- BOOT / INTRO (animated terminal boot sequence — runs once per session) -->
+<div id="boot" aria-hidden="true">
+  <div class="boot-term">
+    <div class="boot-bar"><i></i><i></i><i></i><span>polsia — agent console</span></div>
+    <div class="boot-body" id="bootBody"></div>
+  </div>
+</div>
+
 <nav class="nav" id="nav">
   <a class="brand" href="#top"><span class="dot"></span>Polsia</a>
   <div class="nav-links">
@@ -37,6 +45,7 @@
   </div>
   <p class="note">No credit card required · Free to start</p>
   <a class="live-ticker" href="#live"><span class="pulse"></span>Watch Polsia work on <b id="liveCos">8,742</b> companies live →</a>
+  <a class="scroll-cue" href="#team" aria-label="Scroll to discover"><span class="mouse"></span>Scroll to discover</a>
 </header>
 
 <!-- TEAM CASCADE -->
