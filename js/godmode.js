@@ -1,7 +1,11 @@
-/*! Polsia - God Mode showcase module (v1)
+/*! Polsia - God Mode showcase module (v2)
  *  Standalone. Adds a shiny "God Mode" button to the header that plays a
- *  full-screen reveal animation and lands on a dedicated God Mode page with a
- *  big title, a timer, and live "working now" + "completed" task panels.
+ *  cinematic full-screen reveal animation and lands on a dedicated God Mode
+ *  page with a big title, a timer, and live "working now" + "completed" panels.
+ *
+ *  v2: cooler reveal (expanding rings + conic burst + landing zoom),
+ *      flicker-free rendering (only re-renders lists when content changes),
+ *      timestamps on every item, completed list sorted newest-first.
  *
  *  Reuses the existing engine (S.god / pump / renderGod / S.tasks / S.artifacts).
  *  Does NOT edit app.js. Only app.html gains one <script> tag.
@@ -15,7 +19,7 @@
   function doSave() { var f = fn("save"); if (f) { try { f(); } catch (e) {} } }
   function aiOk() { var f = fn("aiReady"); return f ? !!f() : false; }
   function toast(m) { var f = fn("toast"); if (f) { try { f(m); } catch (e) {} } }
-  function setText(id, t) { var el = g(id); if (el) el.textContent = t; }
+  function setText(id, t) { var el = g(id); if (el && el.textContent !== t) el.textContent = t; }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
@@ -37,6 +41,28 @@
     try { if (t && t.artifactId && Array.isArray(S.artifacts)) return S.artifacts.find(function (a) { return a.id === t.artifactId; }); } catch (e) {}
     return null;
   }
+  // Best-effort timestamp for a task: its deliverable's ts, its own ts, or the
+  // creation time embedded in the task id ('t' + Date.now() + ...).
+  function taskTs(t) {
+    try {
+      var a = artFor(t);
+      if (a && a.ts) return a.ts;
+      if (t && t.ts) return t.ts;
+      if (t && typeof t.id === "string") {
+        var m = t.id.match(/(\d{10,})/);
+        if (m) return parseInt(m[1].slice(0, 13), 10);
+      }
+    } catch (e) {}
+    return 0;
+  }
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  function fmtTime(ts) {
+    if (!ts) return "";
+    try {
+      var d = new Date(ts), h = d.getHours(), ap = h >= 12 ? "PM" : "AM", h12 = h % 12; if (h12 === 0) h12 = 12;
+      return MON[d.getMonth()] + " " + d.getDate() + ", " + h12 + ":" + pad(d.getMinutes()) + " " + ap;
+    } catch (e) { return ""; }
+  }
 
   // ---------- styles ----------
   function injectStyles() {
@@ -51,14 +77,26 @@
       "@keyframes gmShine{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}",
       "@keyframes gmPulse{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.16),0 6px 22px rgba(123,47,247,.35)}50%{box-shadow:0 0 0 1px rgba(255,255,255,.32),0 8px 34px rgba(255,160,60,.55)}}",
       // reveal overlay
-      ".gm-reveal{position:fixed;inset:0;z-index:99999;pointer-events:none;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at var(--gx,50%) var(--gy,10%),#1a1320 0%,#0a0712 60%,#000 100%);clip-path:circle(0px at var(--gx,50%) var(--gy,10%));transition:clip-path .72s cubic-bezier(.7,0,.3,1)}",
+      ".gm-reveal{position:fixed;inset:0;z-index:99999;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at var(--gx,50%) var(--gy,10%),#1a1320 0%,#0a0712 60%,#000 100%);clip-path:circle(0px at var(--gx,50%) var(--gy,10%));transition:clip-path .72s cubic-bezier(.7,0,.3,1)}",
       ".gm-reveal.go{clip-path:circle(150% at var(--gx,50%) var(--gy,10%))}",
       ".gm-reveal.out{opacity:0;transition:opacity .5s ease}",
-      ".gm-reveal .gm-flash{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:min(16vw,150px);letter-spacing:.04em;opacity:0;transform:scale(.6);background:linear-gradient(90deg,#ffd86b,#ff8a3c,#b14d2b,#ffd86b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 60px rgba(255,180,80,.45));transition:opacity .5s ease,transform .7s cubic-bezier(.2,1.2,.3,1)}",
+      // conic energy burst
+      ".gm-reveal .gm-burst{position:absolute;left:var(--gx,50%);top:var(--gy,50%);width:150vmax;height:150vmax;z-index:1;border-radius:50%;transform:translate(-50%,-50%) scale(.2) rotate(0deg);background:conic-gradient(from 0deg,rgba(123,47,247,0),rgba(255,138,60,.55),rgba(255,216,107,0),rgba(123,47,247,.55),rgba(255,138,60,0));opacity:0;mix-blend-mode:screen;filter:blur(10px)}",
+      ".gm-reveal.go .gm-burst{animation:gmBurst 1.15s ease-out forwards}",
+      // shockwave rings
+      ".gm-reveal .gm-ring{position:absolute;left:var(--gx,50%);top:var(--gy,50%);z-index:2;width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,200,120,.85);transform:translate(-50%,-50%) scale(0);opacity:0}",
+      ".gm-reveal.go .gm-ring{animation:gmRing .95s cubic-bezier(.2,.7,.3,1) forwards}",
+      ".gm-reveal.go .gm-ring.r2{animation-delay:.13s;border-color:rgba(180,120,255,.75)}",
+      // flash text
+      ".gm-reveal .gm-flash{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transform:scale(.6);transition:opacity .5s ease,transform .7s cubic-bezier(.2,1.2,.3,1)}",
       ".gm-reveal.go .gm-flash{opacity:1;transform:scale(1)}",
+      ".gm-flash-main{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:min(16vw,150px);line-height:1;letter-spacing:.04em;background:linear-gradient(90deg,#ffd86b,#ff8a3c,#b14d2b,#ffd86b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 60px rgba(255,180,80,.45))}",
+      ".gm-flash-sub{font-size:max(13px,2.1vw);letter-spacing:.55em;text-indent:.55em;font-weight:700;margin-top:12px;color:#ffd9a6;-webkit-text-fill-color:#ffd9a6;opacity:0;transition:opacity .6s ease .25s}",
+      ".gm-reveal.go .gm-flash-sub{opacity:.92}",
       // god page
       "#app-god{height:100vh;overflow:auto;background:radial-gradient(1200px 700px at 50% -10%,#18121f 0%,#0a0712 55%,#060409 100%);color:#f3eee8}",
       ".gm-wrap{max-width:1100px;margin:0 auto;padding:34px 24px 60px;min-height:100vh;display:flex;flex-direction:column}",
+      ".gm-wrap.gm-landing{animation:gmLand .7s cubic-bezier(.2,1.1,.3,1)}",
       ".gm-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}",
       ".gm-top .brand{font-weight:700;letter-spacing:.02em;display:flex;align-items:center;gap:8px;color:#f3eee8}",
       ".gm-exit{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#f3eee8;padding:7px 14px;border-radius:999px;cursor:pointer;font-family:inherit;font-size:13px}",
@@ -83,6 +121,9 @@
       ".gm-working .gm-badge{background:linear-gradient(135deg,#7b2ff7,#ff8a3c);color:#fff;animation:gmPulse 1.6s ease-in-out infinite}",
       ".gm-empty{color:#7c7488;font-size:13px;padding:8px 0}",
       "@keyframes gmIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}",
+      "@keyframes gmRing{0%{transform:translate(-50%,-50%) scale(0);opacity:.9}100%{transform:translate(-50%,-50%) scale(36);opacity:0}}",
+      "@keyframes gmBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0deg)}30%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) scale(1) rotate(170deg)}}",
+      "@keyframes gmLand{0%{opacity:0;transform:scale(1.06)}60%{opacity:1}100%{opacity:1;transform:scale(1)}}",
       "@media(max-width:760px){.gm-grid{grid-template-columns:1fr}.gm-col{max-height:none}}"
     ].join("");
     document.head.appendChild(st);
@@ -139,7 +180,12 @@
   // ---------- render ----------
   function itemHTML(t, working) {
     var a = artFor(t);
-    var meta = (a && a.words) ? (a.words + " words") : (working ? "in progress\u2026" : "done");
+    var when = fmtTime(taskTs(t));
+    var bits = [];
+    if (a && a.words) bits.push(a.words + " words");
+    if (working) bits.push("in progress\u2026");
+    if (when) bits.push(when);
+    var meta = bits.join(" \u00b7 ");
     return '<div class="gm-item' + (working ? " gm-working" : "") + '">' +
       '<span class="gm-badge">' + esc(agentName(t.agent)) + '</span>' +
       '<div class="gm-it-title">' + esc(t.title || "Task") + '<div class="gm-it-meta">' + esc(meta) + '</div></div>' +
@@ -148,38 +194,57 @@
 
   function gmTimerTick() {
     var el = g("gmTimer"); if (!el) return;
-    if (godActive() && S.god && S.god.endsAt) el.textContent = hms(S.god.endsAt - Date.now());
-    else el.textContent = "00:00:00";
+    var txt = (godActive() && S.god && S.god.endsAt) ? hms(S.god.endsAt - Date.now()) : "00:00:00";
+    if (el.textContent !== txt) el.textContent = txt;
   }
+
+  // Signature caches so we only rewrite list HTML when content actually changes
+  // (this is what stops the constant flicker / unstable refresh).
+  var lastWorkSig = null, lastDoneSig = null;
 
   function gmRender() {
     if (!hasS() || !g("app-god")) return;
     var tasks = Array.isArray(S.tasks) ? S.tasks : [];
-    var active = tasks.filter(function (t) { return t && t.status === "active"; });
-    var queued = tasks.filter(function (t) { return t && t.status === "queued"; });
-    var done = tasks.filter(function (t) { return t && t.status === "done"; });
+    var active = [], queued = [], done = [];
+    tasks.forEach(function (t) {
+      if (!t) return;
+      if (t.status === "active") active.push(t);
+      else if (t.status === "queued") queued.push(t);
+      else if (t.status === "done") done.push(t);
+    });
+    // stats (textContent only -> no flicker)
     setText("gmDone", String((S.metrics && S.metrics.done) || done.length));
     setText("gmActive", String(active.length));
     setText("gmQueued", String(queued.length));
+    // completed sorted newest-first by timestamp
+    done.sort(function (a, b) { return taskTs(b) - taskTs(a); });
+    var doneTop = done.slice(0, 40);
+    // working list, only re-render on change
+    var workSig = (godActive() ? "G" : "-") + "|" + active.map(function (t) { return t.id + ":" + (t.title || ""); }).join(",");
     var w = g("gmWorking");
-    if (w) {
+    if (w && workSig !== lastWorkSig) {
+      lastWorkSig = workSig;
       w.innerHTML = active.length
         ? active.map(function (t) { return itemHTML(t, true); }).join("")
         : '<div class="gm-empty">' + (godActive() ? "Spinning up the next task\u2026" : "Idle \u2014 set a timer and unleash.") + "</div>";
     }
+    // completed list, only re-render on change
+    var doneSig = doneTop.map(function (t) { return t.id + ":" + taskTs(t) + ":" + ((artFor(t) || {}).words || ""); }).join(",");
     var c = g("gmCompleted");
-    if (c) {
-      c.innerHTML = done.length
-        ? done.slice().reverse().slice(0, 40).map(function (t) { return itemHTML(t, false); }).join("")
+    if (c && doneSig !== lastDoneSig) {
+      lastDoneSig = doneSig;
+      c.innerHTML = doneTop.length
+        ? doneTop.map(function (t) { return itemHTML(t, false); }).join("")
         : '<div class="gm-empty">No deliverables yet.</div>';
     }
+    // button + duration + timer (cheap, no list churn)
     var go = g("gmGo");
     if (go) {
-      if (godActive()) { go.textContent = "\u25A0 Stop"; go.classList.add("stop"); }
-      else { go.textContent = "\u26A1 Unleash"; go.classList.remove("stop"); }
+      if (godActive()) { if (go.textContent !== "\u25A0 Stop") go.textContent = "\u25A0 Stop"; go.classList.add("stop"); }
+      else { if (go.textContent !== "\u26A1 Unleash") go.textContent = "\u26A1 Unleash"; go.classList.remove("stop"); }
     }
     var sel = g("gmDur");
-    if (sel && S.god && S.god.dur && !godActive()) { try { sel.value = String(S.god.dur); } catch (e) {} }
+    if (sel && S.god && S.god.dur && !godActive()) { try { if (sel.value !== String(S.god.dur)) sel.value = String(S.god.dur); } catch (e) {} }
     gmTimerTick();
   }
 
@@ -216,6 +281,13 @@
   }
 
   // ---------- public controls ----------
+  function replayLand() {
+    try {
+      var wrap = document.querySelector("#app-god .gm-wrap");
+      if (wrap) { wrap.classList.remove("gm-landing"); void wrap.offsetWidth; wrap.classList.add("gm-landing"); }
+    } catch (e) {}
+  }
+
   window.gmEnter = function (ev) {
     injectAll();
     var x = window.innerWidth / 2, y = 44;
@@ -227,13 +299,14 @@
     ov.className = "gm-reveal";
     ov.style.setProperty("--gx", x + "px");
     ov.style.setProperty("--gy", y + "px");
-    ov.innerHTML = '<div class="gm-flash">GOD MODE</div>';
+    ov.innerHTML = '<div class="gm-burst"></div><div class="gm-ring"></div><div class="gm-ring r2"></div>' +
+      '<div class="gm-flash"><span class="gm-flash-main">GOD MODE</span><span class="gm-flash-sub">UNLEASHED</span></div>';
     document.body.appendChild(ov);
     void ov.offsetWidth; // force reflow so the transition runs
     requestAnimationFrame(function () { ov.classList.add("go"); });
-    setTimeout(function () { var oa = fn("openApp"); if (oa) oa("app-god"); gmRender(); }, 620);
-    setTimeout(function () { ov.classList.add("out"); }, 1000);
-    setTimeout(function () { if (ov && ov.parentNode) ov.parentNode.removeChild(ov); }, 1520);
+    setTimeout(function () { var oa = fn("openApp"); if (oa) oa("app-god"); gmRender(); replayLand(); }, 700);
+    setTimeout(function () { ov.classList.add("out"); }, 1180);
+    setTimeout(function () { if (ov && ov.parentNode) ov.parentNode.removeChild(ov); }, 1720);
   };
   window.gmExit = function () { var f = fn("enterDash"); if (f) { f(); return; } var oa = fn("openApp"); if (oa) oa("app-dash"); };
   window.gmToggleRun = function () { if (godActive()) gmStop(); else gmStart(); };
@@ -253,5 +326,5 @@
     } catch (e) {}
   }, 850);
 
-  try { console.log("[godmode] module v1 loaded - gmEnter:", typeof window.gmEnter); } catch (e) {}
+  try { console.log("[godmode] module v2 loaded - gmEnter:", typeof window.gmEnter); } catch (e) {}
 })();
