@@ -100,3 +100,23 @@ const STATE_TABLE = 'polsia_state';
   // OAuth / email redirect that lands back on this page.
   if (enabled()) { client(); }
 })();
+
+/* ---------- Sign-out fix: always return to the animated landing ----------
+   app.js's logout() reveals app.html's own (older) in-page landing instead of
+   the animated marketing site. We wrap logout() so that signing out fully clears
+   the session and sends the user back to index.html (the animated landing). */
+(function () {
+  function patch() {
+    var orig = window.logout;
+    window.logout = function () {
+      try { if (typeof orig === 'function') orig(); } catch (e) {}
+      try { if (window.PB && PB.signOut) PB.signOut(); } catch (e) {}
+      setTimeout(function () {
+        try { location.replace('index.html'); } catch (e) { location.href = 'index.html'; }
+      }, 140);
+    };
+  }
+  if (typeof window.logout === 'function') { patch(); }
+  else if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', patch); }
+  else { patch(); }
+})();

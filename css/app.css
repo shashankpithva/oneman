@@ -452,3 +452,123 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
   .mrow .metric,.agents .agent{animation:none}
   .task:hover,.metric:hover .v,.art:hover .kbadge,.chat-input button:hover{transform:none}
 }
+
+/* ===========================================================
+   DASHBOARD OVERHAUL v2 — bolder formatting + clearly visible motion
+   Additive layer; overrides earlier rules where they conflict.
+   =========================================================== */
+
+/* --- View switch: every app view animates in when it becomes active --- */
+.app.active{animation:viewIn .55s cubic-bezier(.22,.61,.36,1) both}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px) scale(.992)}to{opacity:1;transform:none}}
+
+/* Stronger, longer entrance stagger inside the dashboard column */
+.app.active .app-left>*{animation:fadeUp .6s cubic-bezier(.22,.61,.36,1) both}
+.app.active .app-left>*:nth-child(1){animation-delay:.04s}
+.app.active .app-left>*:nth-child(2){animation-delay:.10s}
+.app.active .app-left>*:nth-child(3){animation-delay:.16s}
+.app.active .app-left>*:nth-child(4){animation-delay:.22s}
+.app.active .app-left>*:nth-child(5){animation-delay:.28s}
+.app.active .app-left>*:nth-child(6){animation-delay:.34s}
+.app.active .app-right{animation:slideInRight .6s cubic-bezier(.22,.61,.36,1) both;animation-delay:.12s}
+@keyframes slideInRight{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+
+/* --- Appbar: layered glass + subtle gradient --- */
+.appbar{background:linear-gradient(180deg,rgba(250,248,242,.94),rgba(246,242,234,.74))}
+.appbar .brand{transition:transform .2s}
+.appbar .brand:hover{transform:translateY(-1px)}
+
+/* --- Section headers get an accent tick (clear formatting change) --- */
+.board>.bhead h3,.board>h3,.god .gh .name,.chat-h,.modal h3{position:relative;padding-left:15px}
+.board>.bhead h3::before,.board>h3::before,.god .gh .name::before,.chat-h::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:5px;height:15px;border-radius:3px;background:linear-gradient(var(--accent),var(--accent-press))}
+.modal h3::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:5px;border-radius:3px;background:linear-gradient(var(--accent),var(--accent-press))}
+
+/* --- Metric cards: gradient surface, accent rail, gradient number, live bar --- */
+.metric{position:relative;overflow:hidden;padding:24px 22px 24px 25px;border-radius:18px;background:linear-gradient(158deg,var(--panel) 58%,var(--bg2));transition:transform .22s,box-shadow .22s,border-color .22s}
+.metric::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--accent),var(--accent-press))}
+.metric::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);background-size:220% 100%;animation:liveBar 3.4s linear infinite;opacity:.55}
+@keyframes liveBar{to{background-position:220% 0}}
+.metric:hover{transform:translateY(-4px);border-color:var(--accent-soft);box-shadow:var(--shadow)}
+.metric .v{font-size:32px;background:linear-gradient(120deg,var(--accent),#d9885a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--accent)}
+.metric .l{letter-spacing:.02em}
+
+/* --- Agent cards: animated working rail + glow when active --- */
+.agent{position:relative;overflow:hidden;border-radius:18px;background:linear-gradient(160deg,var(--panel) 62%,var(--bg2));transition:transform .22s,box-shadow .22s,border-color .22s}
+.agent::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#e0a06f,var(--accent));background-size:220% 100%;transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
+.agent:has(.badge:not(.idle)){border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-soft),var(--shadow)}
+.agent:has(.badge:not(.idle))::after{transform:scaleX(1);animation:liveBar 2.2s linear infinite}
+.agent .ah .name{transition:transform .2s}
+.agent:hover .ah .name{transform:translateX(2px)}
+.agent .badge:not(.idle){animation:badgeGlow 1.8s ease-in-out infinite}
+
+/* --- God Mode: gradient hero card + animated halo when running --- */
+.god{position:relative;overflow:hidden;background:linear-gradient(165deg,var(--panel) 55%,var(--accent-soft))}
+.god .timer{font-size:34px}
+.god.on{background:linear-gradient(165deg,var(--accent-soft),var(--panel))}
+.god.on::before{content:'';position:absolute;inset:-45%;background:conic-gradient(from 0deg,transparent,rgba(177,77,43,.12),transparent 32%);animation:spin 9s linear infinite;pointer-events:none}
+.god .gh,.god .timer,.god .ctrls,.god .gnote{position:relative;z-index:1}
+
+/* --- Tabs: lift on hover + clearer active --- */
+.tab{transition:color .2s,background .2s,transform .15s}
+.tab:hover{transform:translateY(-1px)}
+.tab.active{box-shadow:var(--shadow-sm),inset 0 0 0 1px var(--accent-soft)}
+
+/* --- Tasks: clearer states + hover slide --- */
+.task{border-radius:14px;transition:transform .18s,border-color .18s,background .18s,box-shadow .18s}
+.task:hover{transform:translateX(5px);box-shadow:var(--shadow-sm)}
+.task.active{border-color:var(--accent);background:linear-gradient(90deg,var(--accent-soft),var(--panel))}
+.task.done{opacity:.92}
+
+/* --- Deliverables / outbox rows --- */
+.art{border-radius:14px}
+.art:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+
+/* --- Chat: bubble entrance + send-button gloss base --- */
+.chat-log .msg{animation:msgIn .32s cubic-bezier(.22,.61,.36,1) both}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+.chat-input button{position:relative;overflow:hidden}
+
+/* --- Boards: lift on hover --- */
+.board{transition:transform .25s,box-shadow .25s,border-color .25s}
+.board:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+
+/* --- Onboarding: gradient headline, glowing box, floating chips --- */
+.ob h2{background:linear-gradient(120deg,var(--fg),var(--accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.ob-box{box-shadow:var(--shadow),0 0 0 1px var(--line);animation:fadeUp .6s ease both}
+.ob-suggest .chip{animation:chipFloat 5s ease-in-out infinite}
+.ob-suggest .chip:nth-child(2){animation-delay:.6s}
+.ob-suggest .chip:nth-child(3){animation-delay:1.2s}
+.ob-suggest .chip:nth-child(4){animation-delay:1.8s}
+.ob-suggest .chip:nth-child(5){animation-delay:2.4s}
+@keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.ob-chat .msg{animation:msgIn .32s ease both}
+
+/* --- Competitor radar chips --- */
+.cr-chip{transition:transform .15s,box-shadow .15s}
+.cr-chip:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+
+/* --- Modals: smoother, bolder pop --- */
+.modal{animation:modalPop .3s cubic-bezier(.22,.61,.36,1) both}
+@keyframes modalPop{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+
+/* --- Theme picker cards --- */
+.theme-card{transition:transform .18s,border-color .18s,box-shadow .18s}
+.theme-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm)}
+.theme-card.selected{box-shadow:0 0 0 3px var(--accent-soft),var(--shadow-sm)}
+
+/* --- Company pill --- */
+.company-pill{transition:transform .2s,border-color .2s,box-shadow .2s}
+.company-pill:hover{transform:translateY(-1px);border-color:var(--accent);box-shadow:var(--shadow-sm)}
+
+/* --- Stronger ambient blobs on app views --- */
+.app::before{opacity:.6;width:600px;height:600px}
+.app::after{opacity:.55;width:540px;height:540px}
+
+/* --- Reduced-motion guard for everything added above --- */
+@media(prefers-reduced-motion:reduce){
+  .app.active,.app.active .app-left>*,.app.active .app-right,
+  .metric::after,.agent:has(.badge:not(.idle))::after,.god.on::before,
+  .chat-log .msg,.ob-suggest .chip,.ob-box,.modal{animation:none}
+  .metric:hover,.agent:hover .ah .name,.task:hover,.art:hover,.board:hover,
+  .theme-card:hover,.company-pill:hover,.tab:hover,.appbar .brand:hover{transform:none}
+}
