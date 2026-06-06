@@ -596,15 +596,21 @@ button .pi{vertical-align:-0.2em}
 .ob-coll[open] .ob-caret{transform:rotate(180deg)}
 
 
-/* ===== req#26: phone-friendly layout (mobile-only; desktop unchanged) ===== */
+/* ===== req#27: phone-friendly layout (mobile-only; desktop unchanged) ===== */
 @media(max-width:768px){
-  .appbar{padding:11px 16px;gap:10px}
-  .appbar .left{gap:10px;min-width:0}
-  .appbar .right{gap:8px;width:100%;justify-content:space-between}
-  .tabs{flex:1 1 auto;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-  .tabs::-webkit-scrollbar{display:none}
-  .tab{flex:none}
-  .company-pill{max-width:52vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .appbar{padding:10px 14px;gap:10px 12px;flex-wrap:wrap;align-items:center}
+  .appbar .left{gap:8px;min-width:0;flex:1 1 auto;flex-wrap:wrap;align-items:center}
+  #reportOpenBtn{margin-left:0!important}
+  .company-pill{max-width:62vw;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .appbar .right{gap:8px;width:100%;flex-wrap:wrap;justify-content:flex-start}
+  /* tabs become a full-width wrapping bar — every tab stays visible & tappable, no hidden scroll */
+  .tabs{order:-1;width:100%;display:flex;flex-wrap:wrap;gap:6px;background:var(--bg2);border-radius:14px;padding:6px}
+  .tab{flex:1 1 28%;justify-content:center;text-align:center;white-space:nowrap;padding:9px 6px;font-size:13px;border-radius:10px}
+  /* action buttons + settings share the row below the tabs */
+  .appbar .right>.btn{flex:1 1 auto}
+  .appbar .right .menu{flex:1 1 auto;position:relative}
+  .appbar .right .menu>.btn{width:100%;justify-content:center}
+  .menu-pop{right:auto;left:0}
 }
 @media(max-width:600px){
   section{padding:64px 16px}
@@ -626,10 +632,12 @@ button .pi{vertical-align:-0.2em}
   .ob{padding:84px 16px 32px}
   .ob-chat{max-height:46vh}
   .toast{font-size:13px;padding:11px 18px}
+  /* fundraise form: stack the two-up fields on phones */
+  #app-fundraise div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
 }
 @media(max-width:420px){
-  .appbar .brand{font-size:18px}
-  .tab{padding:8px 13px;font-size:12.5px}
-  .btn.sm{padding:7px 12px;font-size:12px}
+  .appbar .brand{font-size:17px}
+  .tab{flex:1 1 44%;padding:9px 6px;font-size:12.5px}
+  .btn.sm{padding:7px 11px;font-size:12px}
   .metric .v{font-size:23px}
 }
