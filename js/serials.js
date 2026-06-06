@@ -15,6 +15,11 @@
 (function () {
   "use strict";
 
+  var ICON = {
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="#3f7d56" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke="#bc3f2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 16.5h.01"/></svg>'
+  };
+
   function g(id) { return document.getElementById(id); }
   function fn(name) { try { return typeof window[name] === "function" ? window[name] : null; } catch (e) { return null; } }
   function hasS() { try { return typeof S !== "undefined" && !!S; } catch (e) { return false; } }
@@ -143,7 +148,7 @@
     if (g("ser-styles")) return;
     var st = document.createElement("style");
     st.id = "ser-styles";
-    st.textContent = ".ser-meta{font-size:11px;color:#8a857a;margin-top:6px;letter-spacing:.02em;line-height:1.3}";
+    st.textContent = ".ser-meta{font-size:11px;color:#8a857a;margin-top:6px;letter-spacing:.02em;line-height:1.3}.pairgrid .task,.pairgrid .art{flex-wrap:wrap}.pairgrid .ser-meta{flex-basis:100%;width:100%;margin-top:8px;order:9}.alog .li{display:inline-flex;align-items:center;vertical-align:-2px;margin:0 3px 0 1px}.alog .li svg{width:12px;height:12px}";
     document.head.appendChild(st);
   }
   function addCellMeta(el, serial, ts) {
@@ -202,6 +207,27 @@
     try { window.openArtifact = w; } catch (e) {}
   }
 
+  function wrapLog() {
+    var orig = fn("logLine");
+    if (!orig || orig.__serLog) return;
+    var w = function (a, text) {
+      var box = g("log-" + a);
+      if (!box) return;
+      var t = String(text == null ? "" : text), icon = "";
+      if (t.charAt(0) === "\u2713") { icon = ICON.check; t = t.replace(/^\u2713\s*/, ""); }
+      else if (t.charAt(0) === "\u26a0") { icon = ICON.warn; t = t.replace(/^\u26a0\s*/, ""); }
+      var div = document.createElement("div");
+      var sp = document.createElement("span"); sp.className = "t";
+      sp.textContent = new Date().toTimeString().slice(0, 8); div.appendChild(sp);
+      if (icon) { var ic = document.createElement("span"); ic.className = "li"; ic.innerHTML = icon; div.appendChild(ic); }
+      div.appendChild(document.createTextNode(" " + t));
+      box.prepend(div);
+      while (box.children.length > 5) box.removeChild(box.lastChild);
+    };
+    w.__serLog = true; w.__orig = orig;
+    try { window.logLine = w; } catch (e) {}
+  }
+
   function setup() {
     if (!hasS()) return;
     injectStyles();
@@ -212,6 +238,7 @@
     wrapCell("pairTaskCell", function (t) { return { serial: t.serial, ts: t.ts || taskTs(t) }; });
     wrapCell("pairArtCell", function (a) { return { serial: a.serial, ts: a.ts }; });
     wrapOpenArtifact();
+    wrapLog();
     // re-render so decorations + sorting show immediately
     var rt = fn("renderTasks"); if (rt) try { rt(); } catch (e) {}
     var ra = fn("renderArtifacts"); if (ra) try { ra(); } catch (e) {}
@@ -224,5 +251,5 @@
   setTimeout(boot, 1000);
   setTimeout(boot, 1900);
 
-  try { console.log("[serials] module v1 loaded"); } catch (e) {}
+  try { console.log("[serials] module v2 loaded"); } catch (e) {}
 })();

@@ -572,3 +572,13 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
   .metric:hover,.agent:hover .ah .name,.task:hover,.art:hover,.board:hover,
   .theme-card:hover,.company-pill:hover,.tab:hover,.appbar .brand:hover{transform:none}
 }
+
+/* ===== req#24: high-quality icons + dot removal ===== */
+.brand .dot,.live-dot{display:none!important}
+.pi{display:inline-block;width:1.05em;height:1.05em;vertical-align:-0.18em;flex:none}
+.card .ic .pi{width:24px;height:24px}
+.agent .ah .name .pi,.god .gh .name .pi{width:17px;height:17px;vertical-align:middle}
+.mi{display:inline-flex;align-items:center;justify-content:center;margin-right:8px}
+.mi .pi{width:16px;height:16px}
+.chat-input button .pi{width:18px;height:18px;vertical-align:middle}
+button .pi{vertical-align:-0.2em}
