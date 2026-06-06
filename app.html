@@ -181,6 +181,7 @@
         <button class="tab active" onclick="openOutboxPage()">Outbox</button>
         <button class="tab" onclick="openLivePage()">Radar</button>
         <button class="tab" onclick="openWorkPage()">Work</button>
+        <button class="tab" onclick="openFundraisePage()">Fundraise</button>
       </nav>
       <div class="menu">
         <button class="btn ghost sm" onclick="toggleMenu(event,'obMenu')">Settings ▾</button>
@@ -215,6 +216,7 @@
         <button class="tab" onclick="openOutboxPage()">Outbox</button>
         <button class="tab active" onclick="openLivePage()">Radar</button>
         <button class="tab" onclick="openWorkPage()">Work</button>
+        <button class="tab" onclick="openFundraisePage()">Fundraise</button>
       </nav>
       <button class="btn sm" onclick="crRefresh(true)">↻ Refresh</button>
       <div class="menu">
@@ -250,6 +252,7 @@
         <button class="tab" onclick="openOutboxPage()">Outbox</button>
         <button class="tab" onclick="openLivePage()">Radar</button>
         <button class="tab" onclick="openWorkPage()">Work</button>
+        <button class="tab" onclick="openFundraisePage()">Fundraise</button>
       </nav>
       <button class="btn ghost sm ai-pill" onclick="openAI()">Connect AI</button>
       <div class="menu">
@@ -315,6 +318,7 @@
         <button class="tab" onclick="openOutboxPage()">Outbox</button>
         <button class="tab" onclick="openLivePage()">Radar</button>
         <button class="tab active" onclick="openWorkPage()">Work</button>
+        <button class="tab" onclick="openFundraisePage()">Fundraise</button>
       </nav>
     </div>
   </div>
@@ -324,6 +328,56 @@
     </div>
   </div>
 </div>
+<div class="app" id="app-fundraise">
+  <div class="appbar">
+    <div class="left">
+      <div class="brand" onclick="enterDash()"><span class="dot"></span>Polsia</div>
+      <div class="company-pill"><span class="live-dot"></span>Fundraise</div>
+    </div>
+    <div class="right">
+      <nav class="tabs">
+        <button class="tab" onclick="enterDash()">Dashboard</button>
+        <button class="tab" onclick="openOutboxPage()">Outbox</button>
+        <button class="tab" onclick="openLivePage()">Radar</button>
+        <button class="tab" onclick="openWorkPage()">Work</button>
+        <button class="tab active" onclick="openFundraisePage()">Fundraise</button>
+      </nav>
+    </div>
+  </div>
+  <div class="app-main" style="display:block;max-width:920px;margin:0 auto;width:100%">
+    <div class="board" style="margin-bottom:22px">
+      <div class="bhead" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+        <h3 style="margin:0">Raise funds · investor outreach</h3>
+        <button class="btn ghost sm" onclick="frPrefill(true)">↻ Re-fill from my company</button>
+      </div>
+      <div class="alt" style="margin:8px 0 18px">Polsia auto-fills what it already knows about your company. Review it, add the raise details, then it finds the most relevant investors and drafts a personal email to each — ready for your approval in the Outbox.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="field" style="grid-column:1 / -1"><label>Company</label><input id="frCompany" placeholder="Your company name"/></div>
+        <div class="field" style="grid-column:1 / -1"><label>What does your business do?</label><textarea id="frOffer" rows="2" placeholder="One or two sentences on your product"></textarea></div>
+        <div class="field" style="grid-column:1 / -1"><label>Who are your customers?</label><input id="frAudience" placeholder="e.g. early-stage B2B SaaS founders"/></div>
+        <div class="field"><label>Round / stage</label><select id="frRound"><option>Pre-seed</option><option selected>Seed</option><option>Series A</option><option>Series B</option><option>Growth</option><option>Not sure yet</option></select></div>
+        <div class="field"><label>How much are you raising?</label><input id="frAmount" placeholder="e.g. $750,000"/></div>
+        <div class="field" style="grid-column:1 / -1"><label>Use of funds</label><input id="frUse" placeholder="e.g. hire 2 engineers, scale paid acquisition"/></div>
+        <div class="field" style="grid-column:1 / -1"><label>Traction / highlights (optional)</label><textarea id="frTraction" rows="2" placeholder="Revenue, users, growth, notable customers, etc."></textarea></div>
+        <div class="field"><label>Preferred investor geography (optional)</label><input id="frGeo" placeholder="e.g. US, Europe, India, Global"/></div>
+        <div class="field"><label>How many investors?</label><select id="frCount"><option>5</option><option selected>8</option><option>10</option><option>12</option></select></div>
+        <div class="field"><label>Your name (signs the emails)</label><input id="frFounder" placeholder="Your name"/></div>
+        <div class="field"><label>Your email (reply-to)</label><input id="frEmail" type="email" placeholder="you@company.com"/></div>
+      </div>
+      <button class="btn" id="frGo" onclick="frRun()" style="margin-top:16px">Find investors &amp; draft emails →</button>
+      <div class="alt" id="frStatus" style="margin-top:12px"></div>
+      <div class="alt" style="margin-top:10px;font-size:11px;opacity:.8">Note: investor names &amp; emails are generated by your connected AI from its knowledge, not a live database — always verify each address before sending. Sending uses your existing email (EmailJS) setup.</div>
+    </div>
+    <div class="board" id="frResultsCard" style="display:none">
+      <div class="bhead" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <h3 style="margin:0">Investor shortlist &amp; drafted emails</h3>
+        <span class="alt" id="frResultsMeta"></span>
+      </div>
+      <div id="frResults" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg hidden" id="editModal">
   <div class="modal">
     <button class="x" onclick="closeEdit()">×</button>
