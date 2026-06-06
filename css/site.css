@@ -331,3 +331,9 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
   .rotator::after{display:none}
   .blog-grid.reveal .post{opacity:1;transform:none}
 }
+
+
+/* ===== req#25: landing dot removal + creative wordmark ===== */
+.brand .dot,.hchip i,.pulse{display:none!important}
+.brand{position:relative;letter-spacing:-.04em}
+.brand::before{content:"P";display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:9px;background:linear-gradient(135deg,var(--accent),#e0915f);color:#fff;font-weight:800;font-size:.6em;line-height:1;box-shadow:0 4px 12px -4px rgba(177,77,43,.55);transform:rotate(-4deg)}
