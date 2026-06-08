@@ -1,5 +1,5 @@
 /* ===========================================================
-   Polsia landing — themed to the dashboard (css/app.css)
+   OneMan landing — themed to the dashboard (css/app.css)
    with standalone, self-running animations throughout.
    =========================================================== */
 :root{
@@ -336,7 +336,7 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
 /* ===== req#25: landing dot removal + creative wordmark ===== */
 .brand .dot,.hchip i,.pulse{display:none!important}
 .brand{position:relative;letter-spacing:-.04em}
-.brand::before{content:"P";display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:9px;background:linear-gradient(135deg,var(--accent),#e0915f);color:#fff;font-weight:800;font-size:.6em;line-height:1;box-shadow:0 4px 12px -4px rgba(177,77,43,.55);transform:rotate(-4deg)}
+.brand::before{content:"O";display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:9px;background:linear-gradient(135deg,var(--accent),#e0915f);color:#fff;font-weight:800;font-size:.6em;line-height:1;box-shadow:0 4px 12px -4px rgba(177,77,43,.55);transform:rotate(-4deg)}
 
 
 /* ===== req#26: phone-friendly polish (mobile-only; desktop unchanged) ===== */
