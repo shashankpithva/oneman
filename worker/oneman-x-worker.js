@@ -1,5 +1,5 @@
 /*
- * Polsia X auto-post relay — Cloudflare Worker (free tier).
+ * OneMan X auto-post relay — Cloudflare Worker (free tier).
  * Why this exists: browsers cannot call X's API directly (CORS), so this tiny
  * server does the OAuth token exchange and the actual post. It holds NO secrets
  * (uses OAuth 2.0 PKCE public-client flow), so it is safe to deploy as-is.
