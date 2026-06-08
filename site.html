@@ -26,7 +26,7 @@ function render(html){document.open();document.write(html);document.close()}
     var sUrl=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:'';
     var sKey=(typeof SUPABASE_ANON_KEY!=='undefined')?SUPABASE_ANON_KEY:'';
     if(sUrl&&sKey){
-      fetch(sUrl.replace(/\/+$/,'')+'/rest/v1/oneman_sites?id=eq.'+encodeURIComponent(id)+'&select=html',{
+      fetch(sUrl.replace(/\/+$/,'')+'/rest/v1/polsia_sites?id=eq.'+encodeURIComponent(id)+'&select=html',{
         headers:{apikey:sKey,authorization:'Bearer '+sKey}
       }).then(function(r){return r.json()})
         .then(function(rows){
