@@ -35,13 +35,19 @@
       '.wl-bar .wl-count{color:#9090a8}',
       '.wl-bar .wl-del{margin-left:auto}',
       '.wl-del[disabled]{opacity:.45;cursor:not-allowed}',
-      '.task{position:relative}',
-      '.wl-cb{position:absolute;top:10px;right:10px;width:16px;height:16px;cursor:pointer;z-index:3;accent-color:var(--ac,#6c5ce7)}',
-      '.task.wl-picked{outline:2px solid var(--ac,#6c5ce7);outline-offset:-2px}',
+      // True 50/50 split from the middle on every page: 1fr is really
+      // minmax(auto,1fr), so a card with long unbreakable text blows its column
+      // past half. minmax(0,1fr) pins the divider to the center regardless.
+      '#taskList.pairgrid,.board .pairhead{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important}',
+      '#taskList.pairgrid>*{min-width:0}',
+      '#taskList.pairgrid .task .tt{min-width:0;overflow-wrap:anywhere}',
+      // Checkbox is the first flex child of the task card => sits at the far left.
+      '.wl-cb{flex-shrink:0;width:16px;height:16px;margin:0;cursor:pointer;accent-color:var(--accent,#6c5ce7)}',
+      '.task.wl-picked{outline:2px solid var(--accent,#6c5ce7);outline-offset:-2px}',
       '.wl-pager{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:18px 0 4px}',
       '.wl-pager button{min-width:32px;height:32px;padding:0 9px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:inherit;cursor:pointer;font-size:13px;font-family:inherit}',
-      '.wl-pager button:hover:not(:disabled){border-color:var(--ac,#6c5ce7)}',
-      '.wl-pager button.on{background:var(--ac,#6c5ce7);color:#fff;border-color:var(--ac,#6c5ce7)}',
+      '.wl-pager button:hover:not(:disabled){border-color:var(--accent,#6c5ce7)}',
+      '.wl-pager button.on{background:var(--accent,#6c5ce7);color:#fff;border-color:var(--accent,#6c5ce7)}',
       '.wl-pager button:disabled{opacity:.4;cursor:default}',
       '.wl-pager .wl-dots{padding:0 4px;color:#9090a8}',
       '.wl-pager .wl-range{color:#9090a8;margin-left:8px}'
@@ -181,7 +187,7 @@
           renderCurrent();
         };
         if (selected[r.task.id]) cell.classList.add('wl-picked');
-        cell.appendChild(cb);
+        cell.insertBefore(cb, cell.firstChild);
         c.appendChild(cell);
         c.appendChild((typeof pairArtCell === 'function') ? pairArtCell(r.art) : document.createElement('div'));
       } else {
