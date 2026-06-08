@@ -1,15 +1,15 @@
-# Polsia
+# OneMan
 
 Autonomous AI startup operator — marketing site + interactive web app.
 
-Polsia onboards a founder, plans the company, runs AI "employee" agents that produce real deliverables (code, copy, plans), sends outreach email and posts to X after approval, and runs a live **Competitor Radar** that auto-detects competitors from your business description and streams their latest news.
+OneMan onboards a founder, plans the company, runs AI "employee" agents that produce real deliverables (code, copy, plans), sends outreach email and posts to X after approval, and runs a live **Competitor Radar** that auto-detects competitors from your business description and streams their latest news.
 
 ## Project structure
 
 ```
-polsia/
+oneman/
 ├── index.html        # Marketing site (landing page)
-├── app.html          # The interactive Polsia app (onboarding, dashboard, Outbox, Live radar)
+├── app.html          # The interactive OneMan app (onboarding, dashboard, Outbox, Live radar)
 ├── css/
 │   ├── site.css      # Styles for index.html
 │   └── app.css       # Styles for app.html

@@ -1,4 +1,4 @@
-/*! Polsia - God Mode showcase module (v2)
+/*! OneMan - God Mode showcase module (v2)
  *  Standalone. Adds a shiny "God Mode" button to the header that plays a
  *  cinematic full-screen reveal animation and lands on a dedicated God Mode
  *  page with a big title, a timer, and live "working now" + "completed" panels.
@@ -133,11 +133,11 @@
     '<div class="app" id="app-god">' +
       '<div class="gm-wrap">' +
         '<div class="gm-top">' +
-          '<div class="brand"><span class="dot"></span>Polsia</div>' +
+          '<div class="brand"><span class="dot"></span>OneMan</div>' +
           '<button class="gm-exit" onclick="gmExit()">\u2190 Back to dashboard</button>' +
         '</div>' +
         '<div class="gm-title">GOD MODE</div>' +
-        '<div class="gm-sub">Unleash every agent at once. Polsia works non-stop \u2014 generating and completing tasks \u2014 until the timer runs out.</div>' +
+        '<div class="gm-sub">Unleash every agent at once. OneMan works non-stop \u2014 generating and completing tasks \u2014 until the timer runs out.</div>' +
         '<div class="gm-timer" id="gmTimer">00:00:00</div>' +
         '<div class="gm-ctrls">' +
           '<select id="gmDur"><option value="1">1 hour</option><option value="6">6 hours</option><option value="12">12 hours</option><option value="24" selected>24 hours</option></select>' +

@@ -1,6 +1,6 @@
-/*! Polsia - Overnight cycle module (v1)
+/*! OneMan - Overnight cycle module (v1)
  *  Standalone. Adds a PACED autonomous work cycle + a "while you were away"
- *  morning digest, mirroring polsia.com's nightly task model within the
+ *  morning digest, mirroring oneman.com's nightly task model within the
  *  browser-only constraints of this app.
  *
  *  - Reuses the existing engine (executeTask / generateMoreTasks / renderers).
@@ -239,9 +239,9 @@
     var er = fn("emailReady"); if (er && !er()) return;
     var send = fn("emailjsSend"); if (!send) return;
     var to = founderEmail(); if (!to) return;
-    var body = "While you were away, Polsia completed " + count + " tasks (" + words + " words):\n\n" +
+    var body = "While you were away, OneMan completed " + count + " tasks (" + words + " words):\n\n" +
       list.map(function (e) { return "- " + (e.title || "Deliverable"); }).join("\n");
-    try { send(to, "Your Polsia overnight brief", body); } catch (e) {}
+    try { send(to, "Your OneMan overnight brief", body); } catch (e) {}
   }
 
   async function onReturn() {

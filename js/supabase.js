@@ -1,12 +1,12 @@
-/* Polsia — Supabase backend + Google OAuth (drop-in)
+/* OneMan — Supabase backend + Google OAuth (drop-in)
    1. Create a free project at supabase.com.
    2. In Project Settings -> API, copy the Project URL and the anon public key
       into the two constants below.
-   3. If you leave these blank, Polsia silently keeps working in local-only
+   3. If you leave these blank, OneMan silently keeps working in local-only
       (localStorage) mode, exactly like before. */
 const SUPABASE_URL = 'https://uwigvlbnuvfbccnybbby.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3aWd2bGJudXZmYmNjbnliYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2MDgwMDMsImV4cCI6MjA5NjE4NDAwM30.rGIvGMwwMXCfFUHoRQz0rUbIyl49vV9P81Sbgc2siXQ';
-const STATE_TABLE = 'polsia_state';
+const STATE_TABLE = 'oneman_state';
 
 (function () {
   var sb = null;
@@ -24,8 +24,8 @@ const STATE_TABLE = 'polsia_state';
       });
       sb.auth.onAuthStateChange(function (event, session) {
         sessionUser = (session && session.user) ? session.user : null;
-        if (typeof window.onPolsiaAuth === 'function') {
-          try { window.onPolsiaAuth(event, sessionUser); } catch (e) {}
+        if (typeof window.onOneManAuth === 'function') {
+          try { window.onOneManAuth(event, sessionUser); } catch (e) {}
         }
       });
     }
@@ -65,7 +65,7 @@ const STATE_TABLE = 'polsia_state';
   async function loadState() {
     var c = client(); if (!c || !sessionUser) return null;
     var res = await c.from(STATE_TABLE).select('data').eq('user_id', sessionUser.id).maybeSingle();
-    if (res.error) { console.warn('Polsia loadState error:', res.error.message); return null; }
+    if (res.error) { console.warn('OneMan loadState error:', res.error.message); return null; }
     return res.data ? res.data.data : null;
   }
 
@@ -78,7 +78,7 @@ const STATE_TABLE = 'polsia_state';
         { user_id: sessionUser.id, data: stateObj, updated_at: new Date().toISOString() },
         { onConflict: 'user_id' }
       ).then(function (res) {
-        if (res.error) console.warn('Polsia saveState error:', res.error.message);
+        if (res.error) console.warn('OneMan saveState error:', res.error.message);
       });
     }, 1200);
   }

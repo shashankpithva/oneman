@@ -1,4 +1,4 @@
-# Polsia hands-off auto-commit + push watcher (Windows PowerShell).
+# OneMan hands-off auto-commit + push watcher (Windows PowerShell).
 #
 # Run this ONCE. It watches the repo folder and, whenever ANY file changes,
 # automatically stages, commits, and pushes to GitHub. No manual git needed.
@@ -20,12 +20,12 @@ Set-Location $RepoDir
 
 git rev-parse --is-inside-work-tree *> $null
 if ($LASTEXITCODE -ne 0) {
-  Write-Host "[polsia] $RepoDir is not a git repo. Run: git init; git remote add origin <url>"
+  Write-Host "[oneman] $RepoDir is not a git repo. Run: git init; git remote add origin <url>"
   exit 1
 }
 
-Write-Host "[polsia] watching $RepoDir  (branch: $Branch, every $Interval s)"
-Write-Host "[polsia] auto-commit + push is ON. Press Ctrl+C to stop."
+Write-Host "[oneman] watching $RepoDir  (branch: $Branch, every $Interval s)"
+Write-Host "[oneman] auto-commit + push is ON. Press Ctrl+C to stop."
 
 while ($true) {
   $status = git status --porcelain
@@ -37,9 +37,9 @@ while ($true) {
     git pull --rebase --autostash $Remote $Branch *> $null
     git push $Remote $Branch *> $null
     if ($LASTEXITCODE -eq 0) {
-      Write-Host "[polsia] pushed $ts  ->  $files"
+      Write-Host "[oneman] pushed $ts  ->  $files"
     } else {
-      Write-Host "[polsia] committed locally at $ts, but PUSH failed (auth/network?). Will retry next change."
+      Write-Host "[oneman] committed locally at $ts, but PUSH failed (auth/network?). Will retry next change."
     }
   }
   Start-Sleep -Seconds $Interval

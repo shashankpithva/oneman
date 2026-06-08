@@ -1,11 +1,11 @@
-/* Polsia — Fundraise / Investor Outreach module
+/* OneMan — Fundraise / Investor Outreach module
    ------------------------------------------------------------------
    Loads AFTER js/app.js and js/supabase.js so it can reuse the existing
    globals (S, save, llmChat, aiReady, extractJSON, pushChat, toast,
    renderOutbox, openOutboxPage, enterDash, chatSend).
 
    Adds a dedicated "Fundraise" page (#app-fundraise, wired as a tab) that:
-   - Auto-fills what Polsia already knows about the company.
+   - Auto-fills what OneMan already knows about the company.
    - Uses the connected AI to find the most relevant investors for the
      founder's sector + stage, a specific partner + email for each, and a
      personalized cold email per firm.
@@ -251,7 +251,7 @@
     ].join("\n");
   }
 
-  var SYSTEM = "You are Polsia's fundraising agent. You help founders raise capital by identifying the most relevant investors and writing personalized outreach emails. Only suggest REAL, well-known investors (VC firms or notable angels) that genuinely invest in the founder's sector AND stage. For each, name one specific relevant partner or decision-maker and their professional email. If you are not certain of the exact address, provide the firm's standard email pattern (e.g. first@firm.com) and mark emailConfidence as 'pattern-guess'; only use 'known' when genuinely confident. Never invent random or fake-looking addresses. Write warm, concise, specific, human emails that reference what the company actually does \u2014 never generic templates and never placeholder tokens like [NAME].";
+  var SYSTEM = "You are OneMan's fundraising agent. You help founders raise capital by identifying the most relevant investors and writing personalized outreach emails. Only suggest REAL, well-known investors (VC firms or notable angels) that genuinely invest in the founder's sector AND stage. For each, name one specific relevant partner or decision-maker and their professional email. If you are not certain of the exact address, provide the firm's standard email pattern (e.g. first@firm.com) and mark emailConfidence as 'pattern-guess'; only use 'known' when genuinely confident. Never invent random or fake-looking addresses. Write warm, concise, specific, human emails that reference what the company actually does \u2014 never generic templates and never placeholder tokens like [NAME].";
 
   function userPrompt(data, n) {
     return "Here is the founder's company and raise:\n\n" + buildBrief(data) +
@@ -314,7 +314,7 @@
     };
     if (!data.offer) { setStatus("Tell me what your business does first."); return; }
     if (typeof window.aiReady === "function" && !window.aiReady()) {
-      setStatus("Connect your AI first so Polsia can research and write the emails.");
+      setStatus("Connect your AI first so OneMan can research and write the emails.");
       notify("Connect your AI to use investor outreach");
       if (typeof window.openAI === "function") openAI();
       return;

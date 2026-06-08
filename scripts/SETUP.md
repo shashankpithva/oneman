@@ -25,23 +25,23 @@ chmod +x scripts/autocommit.sh
 Leave the terminal open and it keeps syncing. To run it in the background:
 
 ```bash
-nohup ./scripts/autocommit.sh >/tmp/polsia-autocommit.log 2>&1 &
+nohup ./scripts/autocommit.sh >/tmp/oneman-autocommit.log 2>&1 &
 ```
 
 ### Start automatically at login (so it's ALWAYS on)
 
 **Linux (cron):** `crontab -e` then add:
 ```
-@reboot cd /full/path/to/repo && ./scripts/autocommit.sh >/tmp/polsia-autocommit.log 2>&1
+@reboot cd /full/path/to/repo && ./scripts/autocommit.sh >/tmp/oneman-autocommit.log 2>&1
 ```
 
-**macOS (launchd):** create `~/Library/LaunchAgents/com.polsia.autocommit.plist`:
+**macOS (launchd):** create `~/Library/LaunchAgents/com.oneman.autocommit.plist`:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>Label</key><string>com.polsia.autocommit</string>
+  <key>Label</key><string>com.oneman.autocommit</string>
   <key>ProgramArguments</key>
   <array>
     <string>/bin/bash</string>
@@ -52,7 +52,7 @@ nohup ./scripts/autocommit.sh >/tmp/polsia-autocommit.log 2>&1 &
 </dict>
 </plist>
 ```
-Then: `launchctl load ~/Library/LaunchAgents/com.polsia.autocommit.plist`
+Then: `launchctl load ~/Library/LaunchAgents/com.oneman.autocommit.plist`
 
 ## 2. Windows
 
@@ -75,7 +75,7 @@ Every few seconds it checks `git status`. If anything changed, it:
 2. commits with a timestamped message listing changed files
 3. `git pull --rebase --autostash` (avoids conflicts), then `git push`
 
-Default check interval is 10 seconds. Change it with `POLSIA_INTERVAL` (bash) or
+Default check interval is 10 seconds. Change it with `ONEMAN_INTERVAL` (bash) or
 `-Interval` (PowerShell).
 
 ## The one honest caveat

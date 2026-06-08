@@ -1,4 +1,4 @@
-/*! Polsia - Serials, timestamps & email formatting module (v1)
+/*! OneMan - Serials, timestamps & email formatting module (v1)
  *  Standalone. Does NOT edit app.js. Only app.html gains one <script> tag.
  *
  *  - Assigns every task & deliverable a stable timestamp (ts) and a

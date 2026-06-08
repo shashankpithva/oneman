@@ -1,5 +1,5 @@
-/*! Polsia - Steer chat noise filter (v1)
- *  Standalone. Keeps the Steer Polsia chat to the founder's own messages plus
+/*! OneMan - Steer chat noise filter (v1)
+ *  Standalone. Keeps the Steer OneMan chat to the founder's own messages plus
  *  genuine AI answers. Drops automated/canned status chatter:
  *    - welcome line ("I'm set up for ...")
  *    - "Roadmap complete ..." broadcast
