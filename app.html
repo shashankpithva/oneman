@@ -569,5 +569,40 @@
 <script src="js/godmode.js?v=2"></script>
 <script src="js/serials.js?v=2"></script>
 <script src="js/steer.js?v=1"></script>
+<script>
+/* Landing -> app login fix: index.html links here as app.html#login / #signup.
+   app.js renders app.html's own in-page landing and ignored that hash, so the
+   marketing "Log in" / "Get Started" buttons appeared to just load a landing
+   page again. Detect the hash on arrival and open the auth modal in the right
+   mode. */
+(function () {
+  function desiredMode() {
+    var h = (location.hash || '').toLowerCase();
+    if (h.indexOf('signup') !== -1) return 'signup';
+    if (h.indexOf('login') !== -1 || h.indexOf('signin') !== -1) return 'login';
+    return null;
+  }
+  function tryOpen(mode) {
+    if (!mode || typeof window.openAuth !== 'function') return false;
+    try { window.openAuth(mode); } catch (e) { return false; }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    return true;
+  }
+  function run() {
+    var mode = desiredMode();
+    if (!mode) return;
+    var tries = 0;
+    (function attempt() {
+      if (tryOpen(mode)) return;
+      if (++tries > 60) return; // poll up to ~6s for app.js to define openAuth
+      setTimeout(attempt, 100);
+    })();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else { run(); }
+  window.addEventListener('hashchange', run);
+})();
+</script>
 </body>
 </html>
