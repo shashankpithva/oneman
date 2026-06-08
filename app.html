@@ -274,12 +274,6 @@
   <div class="app-main">
     <div class="app-left">
       <div class="board" id="siteCard" style="margin-bottom:26px"></div>
-      <div class="mrow">
-        <div class="metric"><div class="v" id="mDone">0</div><div class="l">Tasks done</div></div>
-        <div class="metric"><div class="v" id="mDeliv">0</div><div class="l">Deliverables</div></div>
-        <div class="metric"><div class="v" id="mWords">0</div><div class="l">Words written</div></div>
-        <div class="metric"><div class="v" id="mCalls">0</div><div class="l">AI calls</div></div>
-      </div>
       <div class="agents">
         <div class="agent"><div class="ah"><span class="name"><svg class="pi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M8.5 12h7M8.5 16h5"/></svg>Planning</span><span class="badge idle" id="b-plan">Idle</span></div><div class="alog" id="log-plan"></div></div>
         <div class="agent"><div class="ah"><span class="name"><svg class="pi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 8 4 12l4.5 4M15.5 8 20 12l-4.5 4"/></svg>Engineering</span><span class="badge idle" id="b-eng">Idle</span></div><div class="alog" id="log-eng"></div></div>
@@ -324,6 +318,12 @@
   </div>
   <div class="app-main" style="grid-template-columns:1fr">
     <div class="app-left">
+      <div class="mrow">
+        <div class="metric"><div class="v" id="mDone">0</div><div class="l">Tasks done</div></div>
+        <div class="metric"><div class="v" id="mDeliv">0</div><div class="l">Deliverables</div></div>
+        <div class="metric"><div class="v" id="mWords">0</div><div class="l">Words written</div></div>
+        <div class="metric"><div class="v" id="mCalls">0</div><div class="l">AI calls</div></div>
+      </div>
       <div class="board"><div class="bhead"><h3>Task board &amp; deliverables</h3><button class="btn sm" id="runBtn" onclick="toggleRun()">Run agents</button></div><div class="pairhead"><div>Task</div><div>Deliverable</div></div><div id="taskList" class="pairgrid"></div></div>
     </div>
   </div>
