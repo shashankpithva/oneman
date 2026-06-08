@@ -24,8 +24,12 @@ const STATE_TABLE = 'oneman_state';
       });
       sb.auth.onAuthStateChange(function (event, session) {
         sessionUser = (session && session.user) ? session.user : null;
-        if (typeof window.onOneManAuth === 'function') {
-          try { window.onOneManAuth(event, sessionUser); } catch (e) {}
+        // Bridge the rebrand gap: app.js still registers the handler under the
+        // legacy name (onPolsiaAuth). Call whichever exists so login routes
+        // into the dashboard/onboarding after a successful auth.
+        var _onAuth = window.onOneManAuth || window.onPolsiaAuth;
+        if (typeof _onAuth === 'function') {
+          try { _onAuth(event, sessionUser); } catch (e) {}
         }
       });
     }
