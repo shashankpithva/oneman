@@ -217,12 +217,12 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
 .bhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:10px}
 
 /* ---------- METRICS ---------- */
-.mrow{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.mrow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
 @media(max-width:620px){.mrow{grid-template-columns:repeat(2,1fr)}}
 .metric{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 20px;box-shadow:var(--shadow-sm);transition:transform .2s,box-shadow .2s}
 .metric:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
 .metric .v{font-size:28px;font-weight:700;letter-spacing:-.03em;color:var(--accent)}
-.metric .l{font-size:12px;color:var(--muted);margin-top:5px}
+.metric .l{font-size:11px;color:var(--muted);margin-top:0}
 
 /* ---------- AGENTS ---------- */
 .agents{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:32px}
@@ -484,12 +484,12 @@ footer{border-top:1px solid var(--line);padding:46px clamp(18px,5vw,46px)}
 .modal h3::before{content:'';position:absolute;left:0;top:5px;bottom:5px;width:5px;border-radius:3px;background:linear-gradient(var(--accent),var(--accent-press))}
 
 /* --- Metric cards: gradient surface, accent rail, gradient number, live bar --- */
-.metric{position:relative;overflow:hidden;padding:24px 22px 24px 25px;border-radius:18px;background:linear-gradient(158deg,var(--panel) 58%,var(--bg2));transition:transform .22s,box-shadow .22s,border-color .22s}
+.metric{position:relative;overflow:hidden;display:flex;align-items:baseline;gap:8px;padding:10px 14px;border-radius:12px;background:linear-gradient(158deg,var(--panel) 58%,var(--bg2));transition:transform .22s,box-shadow .22s,border-color .22s}
 .metric::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--accent),var(--accent-press))}
 .metric::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);background-size:220% 100%;animation:liveBar 3.4s linear infinite;opacity:.55}
 @keyframes liveBar{to{background-position:220% 0}}
 .metric:hover{transform:translateY(-4px);border-color:var(--accent-soft);box-shadow:var(--shadow)}
-.metric .v{font-size:32px;background:linear-gradient(120deg,var(--accent),#d9885a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--accent)}
+.metric .v{font-size:19px;line-height:1;background:linear-gradient(120deg,var(--accent),#d9885a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--accent)}
 .metric .l{letter-spacing:.02em}
 
 /* --- Agent cards: animated working rail + glow when active --- */
@@ -621,9 +621,9 @@ button .pi{vertical-align:-0.2em}
   .modal{padding:24px 20px;border-radius:18px;max-height:92vh}
   .modal.wide{max-width:100%}
   .modal h3{font-size:22px}
-  .mrow{gap:12px;margin-bottom:24px}
-  .metric{padding:18px 16px 18px 19px}
-  .metric .v{font-size:26px}
+  .mrow{gap:8px;margin-bottom:16px}
+  .metric{padding:9px 12px}
+  .metric .v{font-size:17px}
   .god .timer{font-size:30px}
   .task:hover,.art:hover{transform:none}
   .art-actions{flex-wrap:wrap}
@@ -639,5 +639,5 @@ button .pi{vertical-align:-0.2em}
   .appbar .brand{font-size:17px}
   .tab{flex:1 1 44%;padding:9px 6px;font-size:12.5px}
   .btn.sm{padding:7px 11px;font-size:12px}
-  .metric .v{font-size:23px}
+  .metric .v{font-size:16px}
 }
