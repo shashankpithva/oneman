@@ -45,16 +45,17 @@
       + '<div class="field"><label>API key</label>'
       + '<input id="aiKey" type="password" placeholder="Paste your API key"/></div>'
       + '<div class="field"><label>Model</label>'
-      + '<input id="aiModel" placeholder="gpt-4o-mini"/></div>'
+      + '<input id="aiModel" placeholder="deepseek/deepseek-chat-v3-0324:free"/></div>'
       + '<button class="btn" onclick="saveAIForm()">Save &amp; connect</button>'
       + '<div class="alt" id="aiStatus" style="margin-top:10px"></div>'
       + '<div class="alt" style="margin-top:10px;font-size:11px;line-height:1.6">'
-      + '<b>Free option (recommended):</b> create a key at <b>openrouter.ai</b>, choose '
+      + '<b>100% free option (recommended):</b> create a key at <b>openrouter.ai</b>, choose '
       + '<b>OpenAI-compatible</b>, set Base URL to <code>https://openrouter.ai/api/v1</code>, '
-      + 'and use a model such as <code>meta-llama/llama-3.1-8b-instruct</code>.<br>'
-      + '<b>OpenAI:</b> choose <b>OpenAI</b> and use a model like <code>gpt-4o-mini</code>.<br>'
-      + '<b>Anthropic:</b> choose <b>Anthropic</b> and use a model like '
-      + '<code>claude-3-5-sonnet-latest</code>.'
+      + 'and use a model whose ID ends in <code>:free</code> — for example '
+      + '<code>deepseek/deepseek-chat-v3-0324:free</code>. Only IDs ending in '
+      + '<code>:free</code> cost nothing. Free models are capped at roughly 50 requests/day.<br>'
+      + '<b>Paid options:</b> OpenAI <code>gpt-4o-mini</code>, or Anthropic '
+      + '<code>claude-3-5-sonnet-latest</code> (both require billing on those accounts).'
       + '</div>';
   }
 
