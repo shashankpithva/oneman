@@ -6,12 +6,57 @@
 <title>Loading…</title>
 <!-- Load Supabase credentials from the same config used by app.html -->
 <script src="js/supabase.js"></script>
+<style>
+  html,body{margin:0;height:100%;background:#0f0f0f;color:#eee;font-family:system-ui,-apple-system,sans-serif}
+  #msg{padding:48px;text-align:center;font-size:15px;opacity:.7}
+  /* The rendered site fills the whole viewport. */
+  #siteFrame{position:fixed;inset:0;width:100%;height:100%;border:0;margin:0;background:#fff}
+</style>
 </head>
-<body style="margin:0;font-family:system-ui,-apple-system,sans-serif;background:#0f0f0f;color:#eee">
-<div id="msg" style="padding:48px;text-align:center;font-size:15px;opacity:.7">Loading your website…</div>
+<body>
+<div id="msg">Loading your website…</div>
 <script>
 function b64dec(b){try{b=b.replace(/-/g,'+').replace(/_/g,'/');return decodeURIComponent(escape(atob(b)))}catch(e){return ''}}
-function render(html){document.open();document.write(html);document.close()}
+
+function setMsg(text){var m=document.getElementById('msg');if(m){m.textContent=text;m.style.display='';}}
+
+/*
+  SECURITY (critical): the site HTML rendered here is FULLY UNTRUSTED.
+  Anyone can craft a `#h=<base64>` link or store arbitrary HTML in the public
+  `polsia_sites` table and load it via `?id=`. Previously this page injected
+  that HTML straight into THIS document via document.write(), which means any
+  <script> in it executed on the app's own origin — letting an attacker read
+  everything in localStorage (LLM API keys, X access/refresh tokens, EmailJS
+  credentials, the Supabase session, saved password hashes) and silently
+  exfiltrate it. That is a complete account/secret-takeover vector.
+
+  Fix: render the untrusted HTML inside a sandboxed <iframe>. We intentionally
+  DO NOT include `allow-same-origin`, so the iframe document runs in an opaque,
+  isolated origin. It cannot read this page's localStorage, cookies, Supabase
+  session, or DOM, and it cannot reach window.parent's storage. `allow-scripts`
+  is kept so legitimately interactive generated sites still work, but combined
+  WITHOUT `allow-same-origin` the sandbox cannot be escaped to this origin.
+  (Never add `allow-same-origin` together with `allow-scripts` here — that
+  combination lets the framed content remove its own sandbox.)
+*/
+function render(html){
+  // Remove the loading message and any previously rendered frame.
+  var m=document.getElementById('msg');
+  if(m){m.remove();}
+  var old=document.getElementById('siteFrame');
+  if(old){old.remove();}
+
+  var frame=document.createElement('iframe');
+  frame.id='siteFrame';
+  // Opaque-origin sandbox: scripts/forms/popups allowed, but NO same-origin
+  // access, so the framed site is fully isolated from this app's secrets.
+  frame.setAttribute('sandbox','allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads');
+  frame.setAttribute('referrerpolicy','no-referrer');
+  frame.setAttribute('title','Generated website');
+  frame.srcdoc=String(html==null?'':html);
+  document.body.appendChild(frame);
+}
+
 (function(){
   // Try hash fallback first (#h=base64)
   var hash=location.hash||'';
@@ -31,19 +76,19 @@ function render(html){document.open();document.write(html);document.close()}
       }).then(function(r){return r.json()})
         .then(function(rows){
           if(rows&&rows[0]&&rows[0].html){render(rows[0].html)}
-          else{document.getElementById('msg').textContent='Website not found. The link may have expired.'}
+          else{setMsg('Website not found. The link may have expired.')}
         })
         .catch(function(e){
-          document.getElementById('msg').textContent='Could not load website: '+e.message
+          setMsg('Could not load website: '+e.message)
         });
       return;
     } else {
-      document.getElementById('msg').textContent='Supabase is not configured. Please fill in SUPABASE_URL and SUPABASE_ANON_KEY in js/supabase.js';
+      setMsg('Supabase is not configured. Please fill in SUPABASE_URL and SUPABASE_ANON_KEY in js/supabase.js');
       return;
     }
   }
 
-  document.getElementById('msg').textContent='No website data found in this link.';
+  setMsg('No website data found in this link.');
 })();
 </script>
 </body>
