@@ -23,7 +23,7 @@ function setMsg(text){var m=document.getElementById('msg');if(m){m.textContent=t
 /*
   SECURITY (critical): the site HTML rendered here is FULLY UNTRUSTED.
   Anyone can craft a `#h=<base64>` link or store arbitrary HTML in the public
-  `polsia_sites` table and load it via `?id=`. Previously this page injected
+  `oneman_sites` table and load it via `?id=`. Previously this page injected
   that HTML straight into THIS document via document.write(), which means any
   <script> in it executed on the app's own origin — letting an attacker read
   everything in localStorage (LLM API keys, X access/refresh tokens, EmailJS
@@ -71,7 +71,7 @@ function render(html){
     var sUrl=(typeof SUPABASE_URL!=='undefined')?SUPABASE_URL:'';
     var sKey=(typeof SUPABASE_ANON_KEY!=='undefined')?SUPABASE_ANON_KEY:'';
     if(sUrl&&sKey){
-      fetch(sUrl.replace(/\/+$/,'')+'/rest/v1/polsia_sites?id=eq.'+encodeURIComponent(id)+'&select=html',{
+      fetch(sUrl.replace(/\/+$/,'')+'/rest/v1/oneman_sites?id=eq.'+encodeURIComponent(id)+'&select=html',{
         headers:{apikey:sKey,authorization:'Bearer '+sKey}
       }).then(function(r){return r.json()})
         .then(function(rows){
