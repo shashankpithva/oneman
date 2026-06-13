@@ -4,8 +4,32 @@ const UKEY='polsia_users_v1';
 const GOOGLE_CLIENT_ID='';
 let auto=false,busy=false,loopT=null,cur=null,authMode='login',pbBootUser=null;
 
-function users(){try{return JSON.parse(localStorage.getItem(UKEY))||{}}catch(e){return{}}}
-function saveUsers(u){localStorage.setItem(UKEY,JSON.stringify(u))}
+/* ---- secret storage: device-bound encryption at rest (security issue #2) ----
+   Sensitive credentials (AI API key, EmailJS keys, X OAuth tokens, account
+   password hashes) used to live in localStorage as plaintext JSON, so anything
+   able to read this origin's storage (a backup, a synced browser profile, a
+   snooping extension, or shared-machine access) could lift them verbatim.
+   They are now encrypted at rest with AES-GCM. The key is a NON-EXTRACTABLE
+   WebCrypto CryptoKey generated on this device and kept in IndexedDB: scripts
+   can use it to decrypt but cannot read the raw key bytes back out to copy them
+   off the device. No passphrase is needed, so login and usage are unchanged.
+   Values are decrypted into memory once at boot and re-encrypted on change. */
+var SEC_DB='polsia_secure',SEC_STORE='keys',SEC_KEYID='master',SEC_PREFIX='enc:v1:';
+var _secKeyPromise=null,_secChains={};
+function _secOK(){return typeof indexedDB!=='undefined'&&typeof crypto!=='undefined'&&!!crypto.subtle&&typeof TextEncoder!=='undefined'}
+function _idbOpen(){return new Promise(function(res,rej){try{var r=indexedDB.open(SEC_DB,1);r.onupgradeneeded=function(){try{r.result.createObjectStore(SEC_STORE)}catch(e){}};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error||new Error('idb'))}}catch(e){rej(e)}})}
+function _idbReq(db,mode,fn){return new Promise(function(res,rej){try{var tx=db.transaction(SEC_STORE,mode);var rq=fn(tx.objectStore(SEC_STORE));rq.onsuccess=function(){res(rq.result)};rq.onerror=function(){rej(rq.error)}}catch(e){rej(e)}})}
+function _secKey(){if(_secKeyPromise)return _secKeyPromise;_secKeyPromise=(async function(){var db=await _idbOpen();var have=await _idbReq(db,'readonly',function(s){return s.get(SEC_KEYID)});if(have)return have;var key=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);await _idbReq(db,'readwrite',function(s){return s.put(key,SEC_KEYID)});return key})();return _secKeyPromise}
+function _b64e(buf){var b=new Uint8Array(buf),s='';for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s)}
+function _b64d(str){var s=atob(str),a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i);return a}
+async function secEncrypt(obj){var key=await _secKey();var iv=crypto.getRandomValues(new Uint8Array(12));var ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,new TextEncoder().encode(JSON.stringify(obj)));return SEC_PREFIX+_b64e(iv)+'.'+_b64e(ct)}
+async function secDecrypt(str){var key=await _secKey();var body=String(str).slice(SEC_PREFIX.length);var dot=body.indexOf('.');var iv=_b64d(body.slice(0,dot));var ct=_b64d(body.slice(dot+1));var pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct);return JSON.parse(new TextDecoder().decode(pt))}
+function secPersist(lsKey,obj){if(!_secOK())return Promise.resolve(false);var prev=_secChains[lsKey]||Promise.resolve();var next=prev.then(function(){return secEncrypt(obj)}).then(function(enc){try{localStorage.setItem(lsKey,enc);return true}catch(e){return false}}).catch(function(){return false});_secChains[lsKey]=next.catch(function(){});return next}
+async function secLoad(lsKey,fallback){var raw=null;try{raw=localStorage.getItem(lsKey)}catch(e){}if(raw==null)return fallback;if(raw.slice(0,SEC_PREFIX.length)===SEC_PREFIX){if(!_secOK())return fallback;try{return await secDecrypt(raw)}catch(e){return fallback}}/* migrate legacy plaintext: re-store encrypted, overwriting the plaintext copy */try{var obj=JSON.parse(raw);if(_secOK())await secPersist(lsKey,obj);return obj}catch(e){return fallback}}
+
+let _users={};
+function users(){return _users||{}}
+function saveUsers(u){_users=u||{};secPersist(UKEY,_users)}
 function obf(s){try{return btoa(unescape(encodeURIComponent(s)))}catch(e){return s}}
 async function hashPw(s){try{const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('polsia::'+s));return 'h2:'+Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}catch(e){return obf(s)}}
 function decodeJwt(t){try{const p=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');const j=decodeURIComponent(atob(p).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));return JSON.parse(j)}catch(e){return null}}
@@ -13,12 +37,12 @@ function handleGoogleCredential(resp){const d=resp&&resp.credential?decodeJwt(re
 function initGoogle(){if(!GOOGLE_CLIENT_ID||!window.google||!google.accounts||!google.accounts.id)return false;try{google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:handleGoogleCredential});const el=document.getElementById('gsiBtn');if(el){el.innerHTML='';google.accounts.id.renderButton(el,{theme:'filled_black',size:'large',width:300,text:'continue_with',shape:'rectangular'})}return true}catch(e){return false}}
 function fresh(){return{account:null,company:null,idea:null,tasks:[],artifacts:[],metrics:{done:0,deliverables:0,words:0,calls:0},chat:[],recipients:[],outbox:[],report:null,site:null,god:{active:false,endsAt:null,dur:24}}}
 function load(){try{const a=localStorage.getItem('polsia_active');if(a){const u=users();if(u[a]&&u[a].state){const st=Object.assign(fresh(),u[a].state);st.account=a;return st}}}catch(e){}return fresh()}
-let S=load();
+let S=fresh();
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));if(S.account){const u=users();u[S.account]=u[S.account]||{};u[S.account].state=S;saveUsers(u);localStorage.setItem('polsia_active',S.account)}if(window.PB&&PB.enabled()&&PB.user()){PB.saveState(S)}}catch(e){}}
 
-let AI=loadAI();
+let AI={provider:'',key:'',model:'',base:''};
 function loadAI(){try{return JSON.parse(localStorage.getItem('polsia_ai'))||{provider:'',key:'',model:'',base:''}}catch(e){return{provider:'',key:'',model:'',base:''}}}
-function saveAI(){localStorage.setItem('polsia_ai',JSON.stringify(AI))}
+function saveAI(){secPersist('polsia_ai',AI)}
 function aiReady(){return !!(AI.key&&AI.provider)}
 function openAI(){document.getElementById('aiProvider').value=AI.provider||'';aiProviderChange();document.getElementById('aiKey').value=AI.key||'';document.getElementById('aiModel').value=AI.model||'';document.getElementById('aiBase').value=AI.base||'';refreshAIStatus();document.getElementById('aiModal').classList.remove('hidden')}
 function closeAI(){document.getElementById('aiModal').classList.add('hidden')}
@@ -213,12 +237,12 @@ const lines=[...document.querySelectorAll('#cascade .line')];
 const cio=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){lines.forEach((l,idx)=>setTimeout(()=>l.classList.add('on'),idx*200));cio.disconnect()}}),{threshold:.4});
 if(lines.length)cio.observe(document.getElementById('cascade'));
 setAuthMode('login');
-let EMAIL={};try{EMAIL=JSON.parse(localStorage.getItem('polsia_email')||'{}')}catch(e){EMAIL={}}
-let XCFG={};try{XCFG=JSON.parse(localStorage.getItem('polsia_x')||'{}')}catch(e){XCFG={}}
+let EMAIL={};
+let XCFG={};
 function xReady(){return xConnected()}
 function openX(){var c=document.getElementById('xClient');if(c)c.value=XCFG.clientId||'';var w=document.getElementById('xWorker');if(w)w.value=XCFG.workerUrl||'';var st=document.getElementById('xStatus');if(st)st.innerHTML=xConnected()?'\u2713 X account connected \u2014 approved posts publish automatically.':(xConfigured()?'Saved. Click \"Connect X account\" to authorize.':'Enter your Client ID and Worker URL, click Save, then Connect.');var cb=document.getElementById('xConnectBtn');if(cb)cb.style.display=xConnected()?'none':'inline-flex';var db=document.getElementById('xDisconnectBtn');if(db)db.style.display=xConnected()?'inline-flex':'none';document.getElementById('xModal').classList.remove('hidden')}
 function closeX(){document.getElementById('xModal').classList.add('hidden')}
-function saveXForm(){var c=(document.getElementById('xClient')||{}).value||'';var w=(document.getElementById('xWorker')||{}).value||'';XCFG.clientId=c.trim();XCFG.workerUrl=w.trim().replace(/\/$/,'');localStorage.setItem('polsia_x',JSON.stringify(XCFG));toast('Saved');openX()}
+function saveXForm(){var c=(document.getElementById('xClient')||{}).value||'';var w=(document.getElementById('xWorker')||{}).value||'';XCFG.clientId=c.trim();XCFG.workerUrl=w.trim().replace(/\/$/,'');secPersist('polsia_x',XCFG);toast('Saved');openX()}
 var NEWS={};try{NEWS=JSON.parse(localStorage.getItem('polsia_news')||'{}')}catch(e){NEWS={}}
 if(!NEWS.provider)NEWS.provider='google';
 function newsReady(){return NEWS.provider==='google'||!!(NEWS.key&&NEWS.key.length>3)}
@@ -231,7 +255,7 @@ const NL=String.fromCharCode(10);
 function emailReady(){return !!(EMAIL.publicKey&&EMAIL.serviceId&&EMAIL.templateId)}
 function openEmail(){document.getElementById('emPublic').value=EMAIL.publicKey||'';document.getElementById('emService').value=EMAIL.serviceId||'';document.getElementById('emTemplate').value=EMAIL.templateId||'';document.getElementById('emFrom').value=EMAIL.fromName||'';document.getElementById('emStatus').textContent=emailReady()?'Email is set up and ready.':'';document.getElementById('emailModal').classList.remove('hidden')}
 function closeEmail(){document.getElementById('emailModal').classList.add('hidden')}
-function saveEmailForm(){EMAIL={publicKey:document.getElementById('emPublic').value.trim(),serviceId:document.getElementById('emService').value.trim(),templateId:document.getElementById('emTemplate').value.trim(),fromName:document.getElementById('emFrom').value.trim()};localStorage.setItem('polsia_email',JSON.stringify(EMAIL));updateRecipCount();if(emailReady()){toast('Email connected');closeEmail()}else{toast('Fill in all three IDs')}}
+function saveEmailForm(){EMAIL={publicKey:document.getElementById('emPublic').value.trim(),serviceId:document.getElementById('emService').value.trim(),templateId:document.getElementById('emTemplate').value.trim(),fromName:document.getElementById('emFrom').value.trim()};secPersist('polsia_email',EMAIL);updateRecipCount();if(emailReady()){toast('Email connected');closeEmail()}else{toast('Fill in all three IDs')}}
 function updateRecipCount(){['recipCount','recipCount2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.textContent=(S.recipients&&S.recipients.length)?(S.recipients.length+' recipient(s) loaded'+(emailReady()?'':' · email sending not set up yet')):'No recipient list loaded.'})}
 function parseCSV(txt){return txt.split(/\r?\n/).filter(l=>l.trim()).map(l=>l.split(',').map(c=>c.replace(/^"|"$/g,'').trim()))}
 function onSheet(e){const f=e.target.files[0];if(!f)return;const rd=new FileReader();const ext=(f.name.split('.').pop()||'').toLowerCase();rd.onload=function(ev){try{let rows=[];if(ext==='csv'||ext==='txt'){rows=parseCSV(ev.target.result)}else{if(typeof XLSX==='undefined'){toast('Excel reader unavailable offline — save your sheet as CSV');return}const wb=XLSX.read(ev.target.result,{type:'binary'});const ws=wb.Sheets[wb.SheetNames[0]];rows=XLSX.utils.sheet_to_json(ws,{header:1})}ingestRows(rows)}catch(err){toast('Could not read file: '+err.message)}};if(ext==='csv'||ext==='txt'){rd.readAsText(f)}else{rd.readAsBinaryString(f)}e.target.value=''}
@@ -278,9 +302,20 @@ function clearRecipients(){if(!S.recipients||!S.recipients.length){toast('List i
 function resendAllCampaigns(){if(!emailReady()){toast('Set up email sending first');openEmail();return}const camps=S.outbox.filter(o=>o.type==='email'&&(o.attempted||o.status==='sent')&&o.recipients&&o.recipients.length);if(!camps.length){toast('No sent campaigns to resend');return}const total=camps.reduce((n,o)=>n+o.recipients.length,0);if(!confirm('Resend '+camps.length+' campaign(s) to '+total+' recipient(s) total?'))return;(async()=>{for(const o of camps){o.recipients.forEach(r=>r.status='pending');await sendToList(o,o.recipients)}})()}
 function resendCampaign(id,mode){const o=S.outbox.find(x=>x.id===id);if(!o||o.type!=='email')return;if(!emailReady()){toast('Set up email sending first');openEmail();return}if(!o.recipients||!o.recipients.length){if(!S.recipients.length){toast('Upload a recipient list first');return}o.recipients=S.recipients.map(r=>({email:r.email,name:r.name,status:'pending'}))}const list=(mode==='failed')?o.recipients.filter(r=>r.status==='failed'):o.recipients;if(!list.length){toast('Nothing to resend');return}if(!confirm('Resend to '+list.length+' recipient(s)?'))return;list.forEach(r=>r.status='pending');sendToList(o,list)}
 async function resendOne(id,email){const o=S.outbox.find(x=>x.id===id);if(!o)return;const r=(o.recipients||[]).find(x=>x.email===email);if(!r)return;if(!emailReady()){toast('Set up email sending first');openEmail();return}o.attempted=true;r.status='sending';renderOutbox();try{await emailjsSend(r.email,r.name,o.subject,o.body.replace(/\[NAME\]/g,(r.name||'there').split(' ')[0]));r.status='sent';toast('Resent to '+r.email)}catch(e){r.status='failed';toast('Failed: '+e.message);logLine('mkt','Resend to '+r.email+' failed: '+e.message)}if(o.recipients.some(x=>x.status==='sent'))o.status='sent';save();renderOutbox()}
-renderBlog();observeReveals();updateAIPills();
-if(S.account){document.getElementById('navCta').textContent=S.company?'Dashboard':'Continue';if(S.god){S.god.active=false;S.god.endsAt=null}}
-(function(){try{if(typeof xHandleRedirect==='function')xHandleRedirect()}catch(e){}try{var h=(location.hash||'').toLowerCase();if(h==='#login'){openAuth('login')}else if(h==='#signup'||h==='#start'){openAuth('signup')}}catch(e){}})();
+async function boot(){
+	try{AI=await secLoad('polsia_ai',{provider:'',key:'',model:'',base:''})}catch(e){}
+	try{EMAIL=await secLoad('polsia_email',{})}catch(e){}
+	try{XCFG=await secLoad('polsia_x',{})}catch(e){}
+	try{_users=await secLoad(UKEY,{})}catch(e){}
+	S=load();
+	try{renderBlog()}catch(e){}
+	try{observeReveals()}catch(e){}
+	try{updateAIPills()}catch(e){}
+	if(S.account){var nc=document.getElementById('navCta');if(nc)nc.textContent=S.company?'Dashboard':'Continue';if(S.god){S.god.active=false;S.god.endsAt=null}}
+	try{if(typeof xHandleRedirect==='function')await xHandleRedirect()}catch(e){}
+	try{var h=(location.hash||'').toLowerCase();if(h==='#login'){openAuth('login')}else if(h==='#signup'||h==='#start'){openAuth('signup')}}catch(e){}
+}
+boot();
 
 /* ---- dashboard settings dropdown ---- */
 function toggleMenu(e,id){e.stopPropagation();var m=document.getElementById(id);if(!m)return;var open=!m.classList.contains('hidden');document.querySelectorAll('.menu-pop').forEach(function(x){x.classList.add('hidden')});if(!open)m.classList.remove('hidden')}
@@ -293,14 +328,14 @@ function shareSocial(network,o){var full=(o&&o.body)?o.body:'';if(network==='x')
 /* ---- true X auto-post via OAuth2 PKCE + free Worker relay ---- */
 function xConnected(){return !!(XCFG&&XCFG.token)}
 function xConfigured(){return !!(XCFG&&XCFG.clientId&&XCFG.workerUrl)}
-function xDisconnect(){if(XCFG){delete XCFG.token;delete XCFG.refreshToken;delete XCFG.expiresAt}localStorage.setItem('polsia_x',JSON.stringify(XCFG||{}));toast('X account disconnected');if(typeof openX==='function')openX()}
+function xDisconnect(){if(XCFG){delete XCFG.token;delete XCFG.refreshToken;delete XCFG.expiresAt}secPersist('polsia_x',XCFG||{});toast('X account disconnected');if(typeof openX==='function')openX()}
 function xB64url(buf){var bytes=new Uint8Array(buf);var s='';for(var i=0;i<bytes.length;i++)s+=String.fromCharCode(bytes[i]);return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
 function xRandStr(n){var a=new Uint8Array(n||32);crypto.getRandomValues(a);var s='';for(var i=0;i<a.length;i++)s+=('0'+a[i].toString(16)).slice(-2);return s}
 async function xChallenge(v){var enc=new TextEncoder().encode(v);var dig=await crypto.subtle.digest('SHA-256',enc);return xB64url(dig)}
 function xRedirectUri(){return location.origin+location.pathname}
 async function xConnect(){if(!xConfigured()){toast('Enter your X Client ID and Worker URL, then click Save first');return}try{var verifier=xRandStr(40);var challenge=await xChallenge(verifier);var state=xRandStr(8);localStorage.setItem('polsia_x_pkce',JSON.stringify({verifier:verifier,state:state}));var u='https://twitter.com/i/oauth2/authorize?response_type=code&client_id='+encodeURIComponent(XCFG.clientId)+'&redirect_uri='+encodeURIComponent(xRedirectUri())+'&scope='+encodeURIComponent('tweet.read tweet.write users.read offline.access')+'&state='+state+'&code_challenge='+challenge+'&code_challenge_method=S256';window.location.href=u}catch(e){toast('Could not start X connect: '+e.message)}}
-async function xHandleRedirect(){var p;try{p=new URLSearchParams(location.search)}catch(e){return}var code=p.get('code');var state=p.get('state');if(!code)return;var saved={};try{saved=JSON.parse(localStorage.getItem('polsia_x_pkce')||'{}')}catch(e){}var clean=xRedirectUri();if(!saved.verifier||saved.state!==state){history.replaceState({},'',clean);return}if(!XCFG||!XCFG.workerUrl){history.replaceState({},'',clean);return}try{var r=await fetch(XCFG.workerUrl.replace(/\/$/,'')+'/token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,code_verifier:saved.verifier,redirect_uri:clean,client_id:XCFG.clientId})});var d=await r.json();if(d&&d.access_token){XCFG.token=d.access_token;if(d.refresh_token)XCFG.refreshToken=d.refresh_token;XCFG.expiresAt=Date.now()+((d.expires_in||7200)*1000);localStorage.setItem('polsia_x',JSON.stringify(XCFG));toast('X account connected \u2014 auto-posting is on')}else{toast('X connect failed: '+((d&&(d.error_description||d.error))||'unknown'))}}catch(e){toast('X connect error: '+e.message)}localStorage.removeItem('polsia_x_pkce');history.replaceState({},'',clean)}
-async function xRefresh(){if(!XCFG||!XCFG.refreshToken||!XCFG.workerUrl)return false;try{var r=await fetch(XCFG.workerUrl.replace(/\/$/,'')+'/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refresh_token:XCFG.refreshToken,client_id:XCFG.clientId})});var d=await r.json();if(d&&d.access_token){XCFG.token=d.access_token;if(d.refresh_token)XCFG.refreshToken=d.refresh_token;XCFG.expiresAt=Date.now()+((d.expires_in||7200)*1000);localStorage.setItem('polsia_x',JSON.stringify(XCFG));return true}}catch(e){}return false}
+async function xHandleRedirect(){var p;try{p=new URLSearchParams(location.search)}catch(e){return}var code=p.get('code');var state=p.get('state');if(!code)return;var saved={};try{saved=JSON.parse(localStorage.getItem('polsia_x_pkce')||'{}')}catch(e){}var clean=xRedirectUri();if(!saved.verifier||saved.state!==state){history.replaceState({},'',clean);return}if(!XCFG||!XCFG.workerUrl){history.replaceState({},'',clean);return}try{var r=await fetch(XCFG.workerUrl.replace(/\/$/,'')+'/token',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,code_verifier:saved.verifier,redirect_uri:clean,client_id:XCFG.clientId})});var d=await r.json();if(d&&d.access_token){XCFG.token=d.access_token;if(d.refresh_token)XCFG.refreshToken=d.refresh_token;XCFG.expiresAt=Date.now()+((d.expires_in||7200)*1000);secPersist('polsia_x',XCFG);toast('X account connected \u2014 auto-posting is on')}else{toast('X connect failed: '+((d&&(d.error_description||d.error))||'unknown'))}}catch(e){toast('X connect error: '+e.message)}localStorage.removeItem('polsia_x_pkce');history.replaceState({},'',clean)}
+async function xRefresh(){if(!XCFG||!XCFG.refreshToken||!XCFG.workerUrl)return false;try{var r=await fetch(XCFG.workerUrl.replace(/\/$/,'')+'/refresh',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({refresh_token:XCFG.refreshToken,client_id:XCFG.clientId})});var d=await r.json();if(d&&d.access_token){XCFG.token=d.access_token;if(d.refresh_token)XCFG.refreshToken=d.refresh_token;XCFG.expiresAt=Date.now()+((d.expires_in||7200)*1000);secPersist('polsia_x',XCFG);return true}}catch(e){}return false}
 async function xApiPost(text){var base=XCFG.workerUrl.replace(/\/$/,'');var r=await fetch(base+'/post',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:XCFG.token,text:text})});if(r.status===401){var ok=await xRefresh();if(ok){r=await fetch(base+'/post',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:XCFG.token,text:text})})}}var d={};try{d=await r.json()}catch(e){}return {ok:r.ok&&!!(d&&d.data),data:d}}
 
 function renderRunning(){var c=document.getElementById('runList');if(!c)return;var act=S.tasks.filter(function(t){return t.status==='active'});var q=S.tasks.filter(function(t){return t.status!=='done'&&t.status!=='active'}).length;if(!act.length){var on=auto||S.god.active;c.innerHTML='<div class="empty">'+(on?'Spinning up — nothing mid-task this second':'Idle — hit Run agents to start')+(q?(' · '+q+' queued'):'')+'</div>';return}c.innerHTML='';act.forEach(function(t){var d=document.createElement('div');d.className='task active';d.innerHTML='<div class="st"></div><div class="tt"></div><div class="ag"></div>';d.querySelector('.tt').textContent=t.title;d.querySelector('.ag').textContent=agentMeta(t.agent).name;c.appendChild(d)});if(q){var qd=document.createElement('div');qd.className='alt';qd.style.margin='10px 0 0';qd.textContent=q+' more queued — open the Work tab to see the full board';c.appendChild(qd)}}
@@ -320,3 +355,4 @@ function mdLite(src){function esc(t){return String(t).replace(/&/g,'&amp;').repl
 function renderReport(){var b=document.getElementById('reportBody');if(!b)return;var rg=document.getElementById('reportRegen');if(reportBusy){b.innerHTML='<div class="empty">Generating your business report\u2026</div>';if(rg){rg.disabled=true;rg.textContent='Generating\u2026'}return}if(rg){rg.disabled=false;rg.textContent='Regenerate'}if(!S.report||!S.report.content){if(!aiReady()){b.innerHTML='<div class="empty">Connect AI to auto-generate your business report.</div>'}else{b.innerHTML='<div class="empty">No report yet \u2014 click Regenerate to create one.</div>'}return}b.innerHTML=mdLite(S.report.content)+'<div class="alt" style="margin-top:10px">Updated '+new Date(S.report.ts).toLocaleString()+' \u00b7 '+S.report.words+' words</div>'}
 function maybeAutoReport(){if(!aiReady())return;if(reportBusy)return;if(S.report&&S.report.content)return;if(!(S.company||S.idea))return;generateReport(true)}
 async function generateReport(silent){if(!aiReady()){toast('Connect AI to generate a report');openAI();return}if(reportBusy){if(!silent)toast('A report is already generating...');return}reportBusy=true;renderReport();if(!silent)toast('Generating business report \u2014 one moment...');try{var sys='You are the Planning agent at Polsia. Produce a comprehensive, well-structured BUSINESS REPORT in clean markdown for the company '+(S.company||'the startup')+(S.idea?(' (idea: '+S.idea+')'):'')+(S.profile?(' Founder profile: '+S.profile+'.'):'')+' Use ## headings for these sections in order: Executive Summary, Market & Opportunity, Target Customer, Competitive Landscape, Product Strategy, Go-To-Market Plan, Business Model & Pricing, Key Metrics & 90-Day Targets, Risks & Mitigations, Recommended Next Steps. Be specific, realistic and actionable. Output ONLY the report markdown, no preamble.';var ctx='';try{if(typeof crItems!=='undefined'&&crItems&&crItems.length){ctx=' Recent competitor signals to consider: '+crItems.slice(0,8).map(function(it){return String(it.title||'')}).filter(Boolean).join('; ')+'.'}}catch(_){}S.metrics.calls++;var out=await llmChat([{role:'user',content:'Generate the full business report now.'+ctx}],sys,{temp:0.5});var content=String(out||'').trim();if(!content)throw new Error('empty report');var words=content.split(/\s+/).filter(Boolean).length;S.report={content:content,words:words,ts:Date.now()};reportBusy=false;save();renderReport();renderMetrics();if(!silent)toast('Business report ready')}catch(e){reportBusy=false;renderReport();toast('Report failed: '+e.message)}}
+
