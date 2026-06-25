@@ -1,4 +1,4 @@
-/* OneMan — Fundraise / Investor Outreach module
+/* OneMan — Fundraise / Investor Outreach module (v6)
    ------------------------------------------------------------------
    Loads AFTER js/app.js and js/supabase.js so it can reuse the existing
    globals (S, save, llmChat, aiReady, extractJSON, pushChat, toast,
@@ -11,6 +11,14 @@
      personalized cold email per firm.
    - Shows the shortlist + drafts on the page AND pushes each draft to the
      Outbox (type 'email') for approval.
+
+   v6 fine-tuning of "Find VCs":
+   - FIT SCORING + RANKING: every investor now carries an honest 0-100
+     fitScore (+ one-line scoreWhy). Results are sorted best-fit first.
+   - FEEDBACK LOOP: a thumbs up / thumbs down on each investor is saved to
+     localStorage (oneman_fr_feedback_v1). Disliked firms are skipped in
+     future runs (in the prompt AND in code); liked firms are fed back to
+     the model as positive examples and floated to the top.
 
    Honesty note: a browser app can't truly crawl the live web or verify
    private inboxes, so investor names + emails are AI-generated from the
@@ -74,6 +82,97 @@
       if (window.PB && PB.user && PB.user.email) return PB.user.email;
       return "";
     } catch (e) { return ""; }
+  }
+
+  /* ----------------------- feedback store (v6) ----------------------- */
+  // Per-firm thumbs up/down kept in localStorage. Shape:
+  //   { "<firm lowercased>": { firm: "Sequoia", vote: 1|-1, ts: 1234 } }
+  var FB_KEY = "oneman_fr_feedback_v1";
+  function fbLoadAll() {
+    try { var raw = localStorage.getItem(FB_KEY); var o = raw ? JSON.parse(raw) : {}; return (o && typeof o === "object") ? o : {}; } catch (e) { return {}; }
+  }
+  function fbSaveAll(o) { try { localStorage.setItem(FB_KEY, JSON.stringify(o || {})); } catch (e) {} }
+  function fbKeyFor(firm) { return String(firm == null ? "" : firm).trim().toLowerCase(); }
+  function fbGet(firm) { var k = fbKeyFor(firm); if (!k) return 0; var all = fbLoadAll(); var v = all[k]; return (v && typeof v.vote === "number") ? v.vote : 0; }
+  function fbVoteOf(firm) { return fbGet(firm); }
+  function fbVote(firm, dir) {
+    var k = fbKeyFor(firm); if (!k) return;
+    var all = fbLoadAll();
+    var cur = (all[k] && all[k].vote) || 0;
+    var next = (cur === dir) ? 0 : dir; // tapping the same vote toggles it off
+    if (next === 0) { delete all[k]; }
+    else { all[k] = { firm: String(firm).trim(), vote: next, ts: Date.now() }; }
+    fbSaveAll(all);
+  }
+  function fbLists() {
+    var all = fbLoadAll(), likes = [], dislikes = [];
+    Object.keys(all).forEach(function (k) {
+      var v = all[k]; if (!v || !v.vote) return;
+      if (v.vote > 0) likes.push(v.firm || k); else dislikes.push(v.firm || k);
+    });
+    return { likes: likes, dislikes: dislikes };
+  }
+  // Text injected into the prompt so the model learns from past feedback.
+  function fbGuidance() {
+    var l = fbLists(), lines = [];
+    if (l.likes.length) lines.push("The founder LIKED these investors in past runs (good fits \u2014 prioritise similar firms, and you may include these again if still relevant): " + l.likes.join(", ") + ".");
+    if (l.dislikes.length) lines.push("The founder DISLIKED these investors (bad fits \u2014 DO NOT suggest these again, and avoid closely similar firms): " + l.dislikes.join(", ") + ".");
+    return lines.join("\n");
+  }
+  // Small "what I've learned" banner shown above results.
+  function fbSummaryHTML() {
+    var l = fbLists();
+    if (!l.likes.length && !l.dislikes.length) return "";
+    var parts = [];
+    if (l.likes.length) parts.push("\uD83D\uDC4D " + l.likes.length + " liked");
+    if (l.dislikes.length) parts.push("\uD83D\uDC4E " + l.dislikes.length + " hidden");
+    return '<div class="alt" style="margin:0 0 12px;font-size:12px;color:#9b958a">' +
+      'What I\u2019ve learned from your feedback: ' + parts.join(" \u00b7 ") +
+      '. Hidden firms are skipped in future runs. ' +
+      '<a onclick="frResetFeedback()" style="cursor:pointer;text-decoration:underline">Reset</a></div>';
+  }
+  // Drop disliked firms, then sort liked-first and by fitScore.
+  function applyFeedbackAndRank(list) {
+    if (!Array.isArray(list)) return [];
+    var out = list.filter(function (it) { return it && fbVoteOf(it.firm) >= 0; });
+    out.sort(function (a, b) {
+      var va = fbVoteOf(a.firm), vb = fbVoteOf(b.firm);
+      if (vb !== va) return vb - va; // liked firms first
+      var sa = (typeof a.fitScore === "number") ? a.fitScore : -1;
+      var sb = (typeof b.fitScore === "number") ? b.fitScore : -1;
+      return sb - sa; // higher fit first
+    });
+    return out;
+  }
+  window.frVote = function (encFirm, dir) {
+    try {
+      var firm = decodeURIComponent(encFirm);
+      fbVote(firm, dir);
+      var v = fbVoteOf(firm);
+      notify(v > 0 ? ("Got it \u2014 more investors like " + firm) : (v < 0 ? ("Hidden \u2014 I won\u2019t suggest " + firm + " again") : ("Cleared feedback for " + firm)));
+      if (Array.isArray(window.__frLastList)) renderResults(applyFeedbackAndRank(window.__frLastList), window.__frLastAdded || []);
+    } catch (e) { try { console.warn("[fundraise] frVote failed:", e); } catch (e2) {} }
+  };
+  window.frResetFeedback = function () {
+    if (!window.confirm("Clear all investor feedback (likes and hidden firms)?")) return;
+    fbSaveAll({});
+    notify("Investor feedback cleared");
+    if (Array.isArray(window.__frLastList)) renderResults(applyFeedbackAndRank(window.__frLastList), window.__frLastAdded || []);
+  };
+
+  function scoreBadge(score) {
+    if (typeof score !== "number") return "";
+    var col = score >= 75 ? "#1a7f4b" : (score >= 50 ? "#b8860b" : "#9b958a");
+    return '<span style="display:inline-block;padding:2px 8px;border-radius:999px;background:' + col + ';color:#fff;font-size:11px;font-weight:700">' + score + '/100 fit</span>';
+  }
+  function feedbackRow(firm) {
+    var enc = encodeURIComponent(firm || "").replace(/'/g, "%27").replace(/\(/g, "%28").replace(/\)/g, "%29");
+    var v = fbVoteOf(firm), up = v > 0, down = v < 0;
+    return '<div style="display:flex;gap:6px;align-items:center;margin:10px 0 0">' +
+      '<span class="alt" style="font-size:11px;color:#9b958a">Good fit?</span>' +
+      '<button onclick="frVote(\'' + enc + '\',1)" title="More investors like this" style="cursor:pointer;border:1px solid var(--line,#e3ddcf);border-radius:8px;padding:2px 8px;font-size:13px;background:' + (up ? "var(--accent-soft,#eee)" : "transparent") + '">\uD83D\uDC4D</button>' +
+      '<button onclick="frVote(\'' + enc + '\',-1)" title="Hide this investor from future runs" style="cursor:pointer;border:1px solid var(--line,#e3ddcf);border-radius:8px;padding:2px 8px;font-size:13px;background:' + (down ? "var(--accent-soft,#eee)" : "transparent") + '">\uD83D\uDC4E</button>' +
+    '</div>';
   }
 
   /* --------------------------- page nav ------------------------------ */
@@ -155,7 +254,11 @@
     var location = get(["location", "geo", "region", "city", "hq", "headquarters", "country"]);
     var why = get(["why", "reason", "rationale", "fit", "whyrelevant", "relevance", "whythisinvestor"]);
     var conf = get(["emailconfidence", "confidence", "emailconf"]);
+    var fitRaw = get(["fitscore", "score", "matchscore", "relevancescore", "rating", "fitrating"]);
+    var scoreWhy = get(["scorewhy", "scorereason", "fitreason", "whyscore", "scoreexplanation", "scorejustification"]);
     if (!firm && !partner && !body && !subject && !email) return null;
+    var fit = parseInt(("" + fitRaw).replace(/[^0-9.]/g, ""), 10);
+    if (isNaN(fit)) fit = null; else fit = Math.max(0, Math.min(100, fit));
     return {
       firm: ("" + firm).trim(),
       partner: ("" + partner).trim(),
@@ -166,7 +269,9 @@
       website: ("" + website).trim(),
       location: ("" + location).trim(),
       why: ("" + why).trim(),
-      emailConfidence: ("" + conf).trim()
+      emailConfidence: ("" + conf).trim(),
+      fitScore: fit,
+      scoreWhy: ("" + scoreWhy).trim()
     };
   }
 
@@ -251,13 +356,15 @@
     ].join("\n");
   }
 
-  var SYSTEM = "You are OneMan's fundraising agent. You help founders raise capital by identifying the most relevant investors and writing personalized outreach emails. Only suggest REAL, well-known investors (VC firms or notable angels) that genuinely invest in the founder's sector AND stage. For each, name one specific relevant partner or decision-maker and their professional email. If you are not certain of the exact address, provide the firm's standard email pattern (e.g. first@firm.com) and mark emailConfidence as 'pattern-guess'; only use 'known' when genuinely confident. Never invent random or fake-looking addresses. Write warm, concise, specific, human emails that reference what the company actually does \u2014 never generic templates and never placeholder tokens like [NAME].";
+  var SYSTEM = "You are OneMan's fundraising agent. You help founders raise capital by identifying the most relevant investors and writing personalized outreach emails. Only suggest REAL, well-known investors (VC firms or notable angels) that genuinely invest in the founder's sector AND stage. For each, name one specific relevant partner or decision-maker and their professional email. If you are not certain of the exact address, provide the firm's standard email pattern (e.g. first@firm.com) and mark emailConfidence as 'pattern-guess'; only use 'known' when genuinely confident. Never invent random or fake-looking addresses. Score each investor HONESTLY from 0-100 on how well they fit THIS company's stage, sector, traction and geography \u2014 do not inflate scores, and a weak match should score low. Write warm, concise, specific, human emails that reference what the company actually does \u2014 never generic templates and never placeholder tokens like [NAME].";
 
   function userPrompt(data, n) {
+    var guide = fbGuidance();
     return "Here is the founder's company and raise:\n\n" + buildBrief(data) +
+      (guide ? "\n\nFeedback from past runs (IMPORTANT \u2014 follow this):\n" + guide : "") +
       "\n\nIdentify the " + n + " MOST relevant investors for THIS sector and stage" +
       (data.geo ? " with a focus on or presence in " + data.geo : "") +
-      ". For each, pick one specific relevant partner/decision-maker and their professional email (exact if known, otherwise the firm's standard pattern). Then write a personalized cold email (roughly 120-180 words) FROM the founder TO that partner: a specific subject line and a body that opens with why you're emailing THIS investor specifically, explains what the company does and its traction, states how much is being raised and the use of funds, and ends with a clear ask for a short call. Sign as the founder. No placeholders.\n\nReturn ONLY a JSON object of the form {\"investors\": [ ... ]}, where investors is an array of exactly " + n + " objects. Each object must use EXACTLY these keys: firm, focus, partner, role, email, emailConfidence ('known' or 'pattern-guess'), website, location, why, subject, body. Output nothing except that JSON object.";
+      ". For each, pick one specific relevant partner/decision-maker and their professional email (exact if known, otherwise the firm's standard pattern). Then write a personalized cold email (roughly 120-180 words) FROM the founder TO that partner: a specific subject line and a body that opens with why you're emailing THIS investor specifically, explains what the company does and its traction, states how much is being raised and the use of funds, and ends with a clear ask for a short call. Sign as the founder. No placeholders.\n\nReturn ONLY a JSON object of the form {\"investors\": [ ... ]}, where investors is an array of exactly " + n + " objects. Each object must use EXACTLY these keys: firm, focus, partner, role, email, emailConfidence ('known' or 'pattern-guess'), website, location, fitScore (an HONEST integer 0-100 for how well this investor fits this company's stage, sector, traction and geography \u2014 do not inflate), scoreWhy (one short sentence justifying the score), why, subject, body. Output nothing except that JSON object.";
   }
 
   // Remember the last failure so we can tell the founder WHY, instead of a
@@ -331,10 +438,14 @@
       return callAI(data, n, false); // retry in plain mode
     }).then(function (list) {
       if (!list || !list.length) throw new Error("no_parse");
-      var added = pushToOutbox(list, data);
+      window.__frLastList = list;                 // keep raw list for re-ranking on vote
+      var ranked = applyFeedbackAndRank(list);    // drop disliked, sort liked + best fit first
+      if (!ranked.length) ranked = list;          // safety: never end up empty
+      var added = pushToOutbox(ranked, data);
+      window.__frLastAdded = added;
       try { if (window.save) save(); } catch (e) {}
       try { if (window.renderOutbox) renderOutbox(); } catch (e) {}
-      renderResults(list, added);
+      renderResults(ranked, added);
       reportToChat(added);
       notify(added.length + " investor emails drafted in your Outbox");
       setStatus("Done \u2014 " + added.length + " drafts created and pushed to your Outbox below.");
@@ -378,6 +489,8 @@
         website: (it.website || "").toString(),
         location: (it.location || "").toString(),
         why: (it.why || "").toString(),
+        fitScore: (typeof it.fitScore === "number") ? it.fitScore : null,
+        scoreWhy: (it.scoreWhy || "").toString(),
         source: "fundraise",
         ts: now + i
       };
@@ -391,7 +504,9 @@
     var card = g("frResultsCard"), box = g("frResults"), meta = g("frResultsMeta");
     if (!box) return;
     var html = "";
-    if (added.length) {
+    var learned = fbSummaryHTML();
+    if (learned) html += learned;
+    if (added && added.length) {
       html += '<div class="alt" style="margin:0 0 14px;padding:10px 12px;border-radius:10px;background:var(--accent-soft);color:var(--fg)">' +
         '<b>' + added.length + ' personalized emails pushed to your Outbox</b> for approval. ' +
         'Investor names &amp; addresses are AI-suggested \u2014 verify each before sending. ' +
@@ -407,12 +522,14 @@
       html += '<div style="border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 12px;background:var(--panel)">' +
         '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline">' +
           '<div><b>' + firm + '</b>' + (partner ? ' \u2014 ' + partner : "") + (role ? ' <span class="alt">(' + role + ')</span>' : "") + '</div>' +
-          '<span class="alt" style="font-size:11px">' + (loc ? loc + ' \u00b7 ' : "") + '<span style="color:' + confColor + '">' + conf + '</span></span>' +
+          '<span class="alt" style="font-size:11px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">' + scoreBadge(it.fitScore) + (loc ? '<span>' + loc + '</span>' : "") + '<span style="color:' + confColor + '">' + conf + '</span></span>' +
         '</div>' +
+        (it.scoreWhy ? '<div class="alt" style="margin:6px 0 0;font-size:12px"><b>Fit:</b> ' + esc(it.scoreWhy) + '</div>' : "") +
         (it.email ? '<div class="alt" style="margin:6px 0 0">\u2709 ' + esc(it.email) + (it.website ? ' \u00b7 ' + esc(it.website) : "") + '</div>' : "") +
         (it.why ? '<div class="alt" style="margin:4px 0 0;font-style:italic">' + esc(it.why) + '</div>' : "") +
         '<div style="margin:10px 0 4px"><b>Subject:</b> ' + esc(it.subject || "") + '</div>' +
         '<pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.6;margin:0;color:var(--fg)">' + esc(it.body || "") + '</pre>' +
+        feedbackRow(it.firm) +
       '</div>';
     });
     box.innerHTML = html;
@@ -425,10 +542,11 @@
     if (!added.length) return;
     var lines = added.map(function (it) {
       var conf = it.emailConfidence === "known" ? "" : " \u00b7 verify email";
-      return "\u2022 " + it.firm + (it.toName ? " \u2014 " + it.toName : "") + (it.to ? " (" + it.to + ")" : "") + conf;
+      var sc = (typeof it.fitScore === "number") ? (" \u00b7 " + it.fitScore + "/100 fit") : "";
+      return "\u2022 " + it.firm + (it.toName ? " \u2014 " + it.toName : "") + (it.to ? " (" + it.to + ")" : "") + sc + conf;
     });
     say("Drafted " + added.length + " personalized investor emails and put them in your Outbox for approval:\n\n" + lines.join("\n") +
-      "\n\nVerify each email address before sending.");
+      "\n\nVerify each email address before sending. Use \uD83D\uDC4D / \uD83D\uDC4E on each investor to teach me your taste \u2014 I'll skip the ones you dislike next time.");
   }
   /* --------- Outbox: show + edit each email's recipient address --------- */
   // Individual emails (e.g. investor drafts) carry their own to_email; the
@@ -558,5 +676,5 @@
   } else {
     bindNav();
   }
-  try { console.log("[fundraise] module v5 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
+  try { console.log("[fundraise] module v6 loaded \u2014 openFundraisePage:", typeof window.openFundraisePage); } catch (e) {}
 })();
